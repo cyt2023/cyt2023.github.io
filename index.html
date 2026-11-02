@@ -4,150 +4,212 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>cyt</title>
-<meta name="description" content="cyt — Computer Science and Engineering student at TU/e working on humanoid robot perception, XR visualization and human–AI interaction.">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
+<meta name="description" content="cyt — CS&E student at TU/e. Humanoid robot perception, XR visualization, human–AI interaction.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,800&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one reading column. Intro, then dated entries in a two-column ledger (date | work), each with the measured result pulled out in mono. Travels at the end link the two maps. Night palette shared with the maps. */
+/* Concept: the page opens as the camera feed of a walking humanoid robot — detection boxes, a latency HUD, and a stabilization toggle (the planned 2026–27 research).
+   Below the feed, sections are named like ROS topics. Travels end the page as a constellation of 36 cities joined in visit order. Single dark look by choice. */
 :root {
-  --bg: #0b1120;
-  --panel: #111a2e;
-  --line: #2a3a5c;
-  --glow: #ffc65c;
-  --fg: #e8ecf5;
-  --muted: #8a97b4;
-  --display: "Noto Serif SC", "Songti SC", Georgia, serif;
-  --body: "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
-  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --bg: #0a0f14;
+  --feed: #0d1719;
+  --panel: #111c22;
+  --line: #24343c;
+  --fg: #e6ecee;
+  --muted: #8199a3;
+  --amber: #ffbf4d;   /* detection / highlight */
+  --cyan: #5fd4e6;    /* teammate class */
+  --coral: #ff7a66;   /* opponent class */
+  --display: "Fraunces", Georgia, serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { background: var(--bg); color: var(--fg); margin: 0; }
-body {
-  font-family: var(--body);
-  font-size: 15px;
-  line-height: 1.7;
-  padding-block: clamp(48px, 10vh, 96px) 48px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  background-image:
-    radial-gradient(1px 1px at 12% 18%, #ffffff33 50%, transparent 51%),
-    radial-gradient(1px 1px at 72% 9%, #ffffff2a 50%, transparent 51%),
-    radial-gradient(1px 1px at 88% 34%, #ffffff22 50%, transparent 51%),
-    radial-gradient(1px 1px at 40% 6%, #ffffff26 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 58% 26%, #ffc65c55 50%, transparent 51%);
-  background-repeat: no-repeat;
-}
+body { font-family: var(--body); font-size: 15px; line-height: 1.7; }
 a { color: var(--fg); text-decoration-color: var(--line); text-underline-offset: 3px; }
-a:hover { color: var(--glow); text-decoration-color: var(--glow); }
-a:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; border-radius: 2px; }
-main { max-width: 760px; margin: 0 auto; display: grid; gap: 64px; }
+a:hover { color: var(--amber); text-decoration-color: var(--amber); }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 p { margin: 0; }
+.mono { font-family: var(--mono); }
 
-.intro { display: grid; gap: 16px; }
-.coord { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .04em; }
-h1 { font-family: var(--display); font-weight: 900; font-size: clamp(56px, 14vw, 96px); line-height: 1; margin: 0; }
-h1 .dot { color: var(--glow); }
-.lead { font-size: 18px; max-width: 36em; text-wrap: pretty; }
-.focus { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.focus li { font-size: 13px; padding: 3px 12px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); }
-
-section { display: grid; gap: 20px; }
-h2 {
-  font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
-  color: var(--muted); margin: 0; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+/* ---------- camera feed hero ---------- */
+.feed { position: relative; height: min(82vh, 680px); min-height: 460px; background: var(--feed); overflow: hidden; border-bottom: 1px solid var(--line); }
+.feed canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.scene { position: absolute; inset: 0; transform-origin: 50% 50%; pointer-events: none;
+  padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 92px; }
+.scene .inner { max-width: 1040px; width: 100%; margin: 0 auto; }
+h1 { font-family: var(--display); font-weight: 800; font-size: clamp(84px, 20vw, 190px); line-height: .85; margin: 0; letter-spacing: -.02em; display: inline-block; }
+h1 .dot { color: var(--amber); }
+.tag { margin-top: 18px; max-width: 34em; font-size: 17px; color: var(--fg); text-shadow: 0 1px 12px var(--feed); }
+.hud { position: absolute; font-family: var(--mono); font-size: 11px; letter-spacing: .04em; color: var(--muted); line-height: 1.6; z-index: 2; }
+.hud b { color: var(--fg); font-weight: 500; }
+.hud.tl { top: 16px; left: max(16px, env(safe-area-inset-left, 0px)); }
+.hud.tr { top: 16px; right: max(16px, env(safe-area-inset-right, 0px)); text-align: right; }
+.hud.bl { bottom: 18px; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+.rec { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--coral); margin-right: 6px; vertical-align: 1px; animation: blink 1.2s steps(2) infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+#stab {
+  font: inherit; font-size: 11px; letter-spacing: .06em; color: var(--fg); background: #0d171ccc; cursor: pointer;
+  border: 1px solid var(--line); border-radius: 4px; padding: 6px 10px; display: inline-flex; gap: 8px; align-items: center;
 }
+#stab:hover { border-color: var(--amber); }
+#stab .sw { width: 26px; height: 14px; border-radius: 7px; background: var(--line); position: relative; transition: background .2s; }
+#stab .sw::after { content: ""; position: absolute; top: 2px; left: 2px; width: 10px; height: 10px; border-radius: 50%; background: var(--muted); transition: transform .2s, background .2s; }
+#stab[aria-pressed="true"] .sw { background: #4d3a12; }
+#stab[aria-pressed="true"] .sw::after { transform: translateX(12px); background: var(--amber); }
+#stabNote { color: var(--muted); }
+kbd { font-family: var(--mono); border: 1px solid var(--line); border-radius: 3px; padding: 0 4px; font-size: 10px; }
 
-.entries { display: grid; gap: 30px; }
-.entry { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 4px 24px; }
-.when { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 4px; font-variant-numeric: tabular-nums; }
-.what { display: grid; gap: 6px; min-width: 0; }
-.what h3 { font-family: var(--display); font-weight: 600; font-size: 19px; line-height: 1.35; margin: 0; }
+/* ---------- body ---------- */
+main { max-width: 1040px; margin: 0 auto; display: grid; gap: 80px;
+  padding-block: 72px 48px;
+  padding-left: max(24px, env(safe-area-inset-left, 0px)); padding-right: max(24px, env(safe-area-inset-right, 0px)); }
+section { display: grid; gap: 28px; }
+.topic { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 13px; margin: 0; padding-bottom: 10px; border-bottom: 1px solid var(--line); font-weight: 400; }
+.topic .t { color: var(--amber); }
+.topic .ty { color: var(--muted); font-size: 11px; }
+
+.about { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.about .big { font-family: var(--display); font-weight: 500; font-size: clamp(22px, 3vw, 30px); line-height: 1.35; text-wrap: pretty; }
+.about .big em { font-style: normal; color: var(--amber); }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 0; font-size: 14px; }
+.facts dt { font-family: var(--mono); font-size: 11px; color: var(--muted); padding-top: 3px; }
+.facts dd { margin: 0; }
+
+.entries { display: grid; gap: 0; }
+.entry { display: grid; grid-template-columns: 130px minmax(0, 1fr) minmax(0, 260px); gap: 8px 28px; padding: 28px 0; border-top: 1px solid var(--line); }
+.entry:first-child { border-top: 0; padding-top: 4px; }
+.when { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 6px; font-variant-numeric: tabular-nums; }
+.live { display: inline-block; margin-top: 6px; color: var(--amber); }
+.live::before { content: "● "; }
+.what { display: grid; gap: 8px; min-width: 0; }
+.what h3 { font-family: var(--display); font-weight: 800; font-size: 26px; line-height: 1.15; margin: 0; }
 .role { font-size: 13px; color: var(--muted); }
-.what ul { margin: 2px 0 0; padding-left: 18px; display: grid; gap: 4px; }
-.what li::marker { color: var(--line); }
-.metrics { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
-.metric { font-family: var(--mono); font-size: 12px; color: var(--glow); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; }
-.links { font-size: 13px; display: flex; flex-wrap: wrap; gap: 14px; }
-.now { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--bg); background: var(--glow); border-radius: 4px; padding: 1px 6px; vertical-align: 3px; margin-left: 6px; }
+.what ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.what li::marker { color: var(--muted); }
+.links { font-size: 13px; display: flex; flex-wrap: wrap; gap: 16px; }
+.side { min-width: 0; display: grid; gap: 10px; align-content: start; padding-top: 6px; }
 
-.pubs { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
-.pubs li { display: grid; gap: 2px; }
-.pubs .t { font-weight: 500; }
-.pubs .v { font-size: 13px; color: var(--muted); }
+/* to-scale result bars */
+.bars { display: grid; gap: 8px; font-family: var(--mono); font-size: 11px; }
+.bar { display: grid; gap: 3px; }
+.bar .lab { display: flex; justify-content: space-between; color: var(--muted); }
+.bar .lab b { color: var(--fg); font-weight: 500; }
+.bar .track { height: 8px; background: var(--panel); border-radius: 2px; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--line); }
+.bar.win .fill { background: var(--amber); }
+.bars .note { color: var(--amber); }
+.chip { font-family: var(--mono); font-size: 11px; color: var(--fg); border: 1px solid var(--line); border-radius: 4px; padding: 3px 8px; justify-self: start; }
+.chip b { color: var(--amber); font-weight: 500; }
 
-.skills { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px 24px; margin: 0; }
-.skills dt { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 3px; }
-.skills dd { margin: 0; }
+.pubs { list-style: none; margin: 0; padding: 0; display: grid; gap: 18px; }
+.pubs li { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 4px 28px; }
+.pubs .k { font-family: var(--mono); font-size: 11px; color: var(--muted); padding-top: 4px; }
+.pubs .t { font-family: var(--display); font-size: 19px; font-weight: 500; line-height: 1.35; }
+.pubs .v { font-size: 13px; color: var(--muted); grid-column: 2; }
 
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
-a.card {
-  display: grid; gap: 12px; padding: 20px; border-radius: 10px; text-decoration: none; color: var(--fg);
-  background: var(--panel); border: 1px solid var(--line); transition: border-color .2s, transform .2s;
+.stack { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; }
+.stack h4 { font-family: var(--mono); font-weight: 400; font-size: 11px; color: var(--muted); margin: 0 0 8px; letter-spacing: .06em; }
+.stack ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.stack li { font-family: var(--mono); font-size: 12px; border: 1px solid var(--line); border-radius: 4px; padding: 2px 8px; }
+
+/* travels */
+.trav-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+.trav-head .big { font-family: var(--display); font-size: clamp(22px, 3vw, 28px); font-weight: 500; }
+.trav-head .big b { color: var(--amber); font-weight: 800; }
+.years { display: flex; gap: 6px; flex-wrap: wrap; }
+.years button { font: inherit; font-family: var(--mono); font-size: 12px; color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 4px; padding: 4px 10px; cursor: pointer; }
+.years button[aria-pressed="true"] { color: var(--bg); background: var(--amber); border-color: var(--amber); }
+.sky { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.sky canvas { display: block; width: 100%; height: clamp(220px, 34vw, 340px); }
+#tip { position: absolute; pointer-events: none; font-family: var(--mono); font-size: 11px; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 3px 8px; white-space: nowrap; transform: translate(-50%, -130%); }
+.maps { display: flex; flex-wrap: wrap; gap: 12px; }
+.maps a { font-family: var(--mono); font-size: 13px; text-decoration: none; border: 1px solid var(--line); border-radius: 6px; padding: 10px 16px; display: inline-flex; gap: 12px; align-items: baseline; }
+.maps a span { color: var(--muted); font-size: 11px; }
+.maps a:hover { border-color: var(--amber); }
+
+footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+
+@media (max-width: 860px) {
+  .about { grid-template-columns: 1fr; }
+  .entry { grid-template-columns: 1fr; gap: 10px; }
+  .side { padding-top: 0; max-width: 360px; }
+  .pubs li { grid-template-columns: 1fr; }
+  .pubs .v { grid-column: 1; }
+  .hud.tr { display: none; }
 }
-a.card:hover, a.card:focus-visible { border-color: var(--glow); transform: translateY(-2px); outline: none; color: var(--fg); }
-.card .top { display: flex; justify-content: space-between; align-items: baseline; }
-.card h3 { font-family: var(--display); font-size: 20px; margin: 0; }
-.card .arrow { color: var(--muted); }
-a.card:hover .arrow { color: var(--glow); }
-.nums { display: flex; gap: 22px; }
-.nums b { display: block; font-family: var(--display); font-size: 26px; color: var(--glow); line-height: 1; font-variant-numeric: tabular-nums; }
-.nums span { font-size: 12px; color: var(--muted); }
-
-footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; }
-
-@media (max-width: 560px) {
-  .entry, .skills { grid-template-columns: 1fr; }
-  .when { padding-top: 0; }
-}
-@media (prefers-reduced-motion: reduce) { a.card { transition: none; } a.card:hover { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .rec { animation: none; } }
 </style>
 </head>
 <body>
-<main>
-  <header class="intro">
-    <p class="coord">51.4416° N, 5.4697° E · Eindhoven</p>
-    <h1>cyt<span class="dot">.</span></h1>
-    <p class="lead">Computer Science and Engineering student at TU/e. I build perception pipelines for humanoid soccer robots, interactive XR tools for exploring spatiotemporal data, and study how people decide what an AI may say on their behalf.</p>
-    <ul class="focus">
-      <li>Robot perception</li>
-      <li>XR &amp; visualization</li>
-      <li>Human–AI interaction</li>
-    </ul>
-  </header>
 
-  <section aria-labelledby="h-exp">
-    <h2 id="h-exp">Research &amp; robotics</h2>
+<header class="feed" id="feed">
+  <canvas id="cam" aria-hidden="true"></canvas>
+  <div class="scene" id="scene">
+    <div class="inner">
+      <h1 id="name">cyt<span class="dot">.</span></h1>
+      <p class="tag">CS&amp;E student at TU/e. I teach humanoid robots to see, build XR tools for exploring data, and study what people will let an AI say for them.</p>
+    </div>
+  </div>
+  <div class="hud tl"><span class="rec"></span><b>BOOSTER T1</b> · /camera/image_raw<br>frame <span id="frame">000000</span> · 640×480</div>
+  <div class="hud tr">TensorRT <b id="lat">6.32</b> ms<br>ONNX CUDA 13.73 ms</div>
+  <div class="hud bl">
+    <button id="stab" type="button" aria-pressed="false"><span class="sw"></span>STABILIZATION</button>
+    <span id="stabNote">robot is walking · press <kbd>S</kbd> to stabilize</span>
+  </div>
+</header>
+
+<main>
+  <section aria-labelledby="t-about">
+    <h2 class="topic" id="t-about"><span class="t">/cyt/about</span><span class="ty">std_msgs/String</span></h2>
+    <div class="about">
+      <p class="big">I work where <em>perception</em>, <em>interaction</em> and <em>visualization</em> meet: making a robot’s camera useful on a moving body, making 3D data explorable in VR, and asking where AI delegation should stop.</p>
+      <dl class="facts">
+        <dt>BASED</dt><dd>Eindhoven, NL</dd>
+        <dt>STUDY</dt><dd>BSc Computer Science &amp; Engineering, TU/e · 2024–2027</dd>
+        <dt>NOW</dt><dd>Tech United humanoid team; research assistant at Northeastern University</dd>
+        <dt>COURSES</dt><dd>Data Structures &amp; Algorithms, Computer Systems, Software Design, Embedded Systems</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-proj">
+    <h2 class="topic" id="t-proj"><span class="t">/cyt/projects</span><span class="ty">5 messages</span></h2>
     <div class="entries">
 
       <article class="entry">
-        <div class="when">Jul 2026 – now</div>
+        <div class="when">2024 – now<br><span class="live">live</span></div>
         <div class="what">
-          <h3>AI delegation in team meetings<span class="now">NOW</span></h3>
-          <p class="role">Undergraduate Research Assistant · Northeastern University</p>
+          <h3>Humanoid robot perception</h3>
+          <p class="role">Tech United · RoboCup Humanoid</p>
           <ul>
-            <li>Co-author of a CHI 2027 submission on when people let an AI proxy speak for them in meetings.</li>
-            <li>Studying how the type of communicative act and the meeting context shift that willingness.</li>
+            <li>Built and deployed a ROS 2 object-detection visualization pipeline on the Booster T1: camera frames → model inference → annotated ROS topics → Foxglove. Passes all 11 detector tests.</li>
+            <li>Next, 2026–27: optical-flow camera-motion estimation and image stabilization, so teammate/opponent classification holds up while the robot walks and turns its head. The toggle at the top of this page is a toy version.</li>
           </ul>
+          <div class="links"><a href="https://techunited.nl/">techunited.nl ↗</a></div>
+        </div>
+        <div class="side">
+          <div class="bars" aria-label="Mean pipeline latency, 50 timed iterations after warm-up">
+            <div class="bar win"><div class="lab"><b>TensorRT</b><span>6.32 ms</span></div><div class="track"><div class="fill" style="width:46.0%"></div></div></div>
+            <div class="bar"><div class="lab"><b>ONNX Runtime CUDA</b><span>13.73 ms</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+            <span class="note">2.17× faster · preliminary, n=50</span>
+          </div>
         </div>
       </article>
 
       <article class="entry">
-        <div class="when">2024 – now</div>
+        <div class="when">Jul 2026 – now<br><span class="live">live</span></div>
         <div class="what">
-          <h3>Humanoid robot perception<span class="now">NOW</span></h3>
-          <p class="role">Tech United · RoboCup Humanoid team</p>
+          <h3>Would you let your proxy say that?</h3>
+          <p class="role">Undergraduate Research Assistant · Northeastern University</p>
           <ul>
-            <li>Built and deployed a ROS 2 object-detection visualization pipeline on the Booster T1 humanoid: camera frames, model inference, annotated ROS topics, Foxglove.</li>
-            <li>Benchmarked TensorRT against ONNX Runtime CUDA over 50 timed iterations after warm-up.</li>
-            <li>Next (2026–27): optical-flow camera-motion estimation and image stabilization, so teammate/opponent classification holds up while the robot walks and turns its head.</li>
+            <li>How the type of communicative act and the meeting context change people’s willingness to let an AI proxy take part in team meetings for them.</li>
           </ul>
-          <div class="metrics">
-            <span class="metric">6.32 ms vs 13.73 ms</span>
-            <span class="metric">2.17× faster (preliminary)</span>
-            <span class="metric">11/11 detector tests</span>
-          </div>
-          <div class="links"><a href="https://techunited.nl/">Tech United ↗</a></div>
         </div>
+        <div class="side"><span class="chip">co-author · <b>CHI 2027</b> submission</span></div>
       </article>
 
       <article class="entry">
@@ -157,13 +219,11 @@ footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line)
           <p class="role">Visiting Research Intern · HKUST VisLab</p>
           <ul>
             <li>Sole developer of a desktop/VR prototype for exploring spatiotemporal data, in Unity/C# and Python, integrating VolumeSTCube and MatPlotAgent.</li>
-            <li>Designed typed APIs linking 3D visualization, S4D analysis services and LLM-assisted Matplotlib generation; implemented data loading, session history, input validation and release checks.</li>
+            <li>Typed APIs linking 3D visualization, S4D analysis services and LLM-assisted Matplotlib generation, plus data loading, session history, input validation and release checks.</li>
           </ul>
-          <div class="links">
-            <a href="https://github.com/cyt2023/STC-SlabLab-XR">Project on GitHub ↗</a>
-            <a href="https://vis.cse.ust.hk/">HKUST VisLab ↗</a>
-          </div>
+          <div class="links"><a href="https://github.com/cyt2023/STC-SlabLab-XR">GitHub ↗</a><a href="https://vis.cse.ust.hk/">HKUST VisLab ↗</a></div>
         </div>
+        <div class="side"><span class="chip">sole developer · <b>Unity / C# / Python</b></span></div>
       </article>
 
       <article class="entry">
@@ -172,14 +232,13 @@ footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line)
           <h3>LacAIDes</h3>
           <p class="role">Collaboration with Xi'an Jiaotong University</p>
           <ul>
-            <li>Co-authored an LLM-assisted workflow for contour extraction, morphology, path planning and DXF export.</li>
-            <li>Contributed to the user study.</li>
+            <li>An LLM-assisted workflow for contour extraction, morphology, path planning and DXF export. Co-authored the paper and contributed to the user study.</li>
           </ul>
-          <div class="metrics">
-            <span class="metric">34 participants</span>
-            <span class="metric">MUSE Design Awards · Silver</span>
-          </div>
           <div class="links"><a href="https://arxiv.org/abs/2510.08326">arXiv:2510.08326 ↗</a></div>
+        </div>
+        <div class="side">
+          <span class="chip"><b>34</b> participants</span>
+          <span class="chip">MUSE Design Awards · <b>Silver</b></span>
         </div>
       </article>
 
@@ -189,11 +248,14 @@ footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line)
           <h3>Quercus Airport</h3>
           <p class="role">Systems integration capstone · TU/e</p>
           <ul>
-            <li>Fixed distributed C routing logic that kept picking busy equivalent services, through rerouting and integration fixes.</li>
+            <li>Distributed C routing logic kept selecting busy equivalent services. Rerouting and integration fixes cut the documented scenario time by more than half.</li>
           </ul>
-          <div class="metrics">
-            <span class="metric">52.741 s → 22.790 s</span>
-            <span class="metric">−56.8% scenario time</span>
+        </div>
+        <div class="side">
+          <div class="bars" aria-label="Documented scenario completion time">
+            <div class="bar"><div class="lab"><b>before</b><span>52.741 s</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+            <div class="bar win"><div class="lab"><b>after</b><span>22.790 s</span></div><div class="track"><div class="fill" style="width:43.2%"></div></div></div>
+            <span class="note">−56.8%</span>
           </div>
         </div>
       </article>
@@ -201,56 +263,277 @@ footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line)
     </div>
   </section>
 
-  <section aria-labelledby="h-pub">
-    <h2 id="h-pub">Publications &amp; honors</h2>
+  <section aria-labelledby="t-pub">
+    <h2 class="topic" id="t-pub"><span class="t">/cyt/publications</span><span class="ty">+ honors</span></h2>
     <ul class="pubs">
-      <li>
-        <span class="t">Would You Let Your Proxy Say That? Act Type, Context, and the Boundary of AI Delegation in Team Meetings</span>
-        <span class="v">Co-author · submitted to CHI 2027</span>
-      </li>
-      <li>
-        <span class="t"><a href="https://arxiv.org/abs/2510.08326">LacAIDes</a></span>
-        <span class="v">Co-author · arXiv:2510.08326 · MUSE Design Awards Silver</span>
-      </li>
-      <li>
-        <span class="t">Competitive programming</span>
-        <span class="v">CSP-S Second Prize · NOIP Third Prize (provincial, China)</span>
-      </li>
+      <li><span class="k">CHI 2027 · sub.</span><span class="t">Would You Let Your Proxy Say That? Act Type, Context, and the Boundary of AI Delegation in Team Meetings</span><span class="v">co-author · under review</span></li>
+      <li><span class="k">arXiv 2025</span><span class="t"><a href="https://arxiv.org/abs/2510.08326">LacAIDes</a></span><span class="v">co-author · arXiv:2510.08326 · MUSE Design Awards Silver</span></li>
+      <li><span class="k">olympiad</span><span class="t">CSP-S Second Prize · NOIP Third Prize</span><span class="v">competitive programming, provincial level, China</span></li>
     </ul>
   </section>
 
-  <section aria-labelledby="h-edu">
-    <h2 id="h-edu">Education &amp; skills</h2>
-    <dl class="skills">
-      <dt>2024 – 2027</dt>
-      <dd><b>BSc Computer Science and Engineering</b>, TU/e (expected 2027)<br><span class="role">Data Structures &amp; Algorithms · Computer Systems · Software Design · Embedded Systems</span></dd>
-      <dt>Languages</dt><dd>Python, C, C++, C#, Java</dd>
-      <dt>Robotics / AI</dt><dd>ROS 2, TensorRT, ONNX Runtime, Unity, NumPy, pandas</dd>
-      <dt>Engineering</dt><dd>Git, Linux, CMake, Make, GitHub Actions / CI, REST/JSON APIs</dd>
-    </dl>
-  </section>
-
-  <section aria-labelledby="h-trips">
-    <h2 id="h-trips">Travels · 足迹</h2>
-    <div class="cards">
-      <a class="card" href="https://cyt2023.github.io/-/china.html">
-        <div class="top"><h3>中国 China</h3><span class="arrow">→</span></div>
-        <div class="nums">
-          <div><b>12</b><span>cities</span></div>
-          <div><b>9</b><span>provinces</span></div>
-        </div>
-      </a>
-      <a class="card" href="https://cyt2023.github.io/-/europe.html">
-        <div class="top"><h3>欧洲 Europe</h3><span class="arrow">→</span></div>
-        <div class="nums">
-          <div><b>23</b><span>cities</span></div>
-          <div><b>7</b><span>countries</span></div>
-        </div>
-      </a>
+  <section aria-labelledby="t-stack">
+    <h2 class="topic" id="t-stack"><span class="t">/cyt/stack</span><span class="ty">package.xml</span></h2>
+    <div class="stack">
+      <div><h4>LANGUAGES</h4><ul><li>Python</li><li>C</li><li>C++</li><li>C#</li><li>Java</li></ul></div>
+      <div><h4>ROBOTICS / AI</h4><ul><li>ROS 2</li><li>TensorRT</li><li>ONNX Runtime</li><li>Unity</li><li>NumPy</li><li>pandas</li></ul></div>
+      <div><h4>ENGINEERING</h4><ul><li>Git</li><li>Linux</li><li>CMake</li><li>Make</li><li>GitHub Actions</li><li>REST/JSON</li></ul></div>
     </div>
   </section>
 
-  <footer>© 2026 cyt</footer>
+  <section aria-labelledby="t-trav">
+    <h2 class="topic" id="t-trav"><span class="t">/cyt/travels</span><span class="ty">geometry_msgs/Path · 足迹</span></h2>
+    <div class="trav-head">
+      <p class="big"><b>36</b> cities, three years, in the order I visited them.</p>
+      <div class="years" id="years"></div>
+    </div>
+    <div class="sky">
+      <canvas id="sky" aria-label="Constellation of visited cities from San Diego through Europe to China"></canvas>
+      <div id="tip" hidden></div>
+    </div>
+    <div class="maps">
+      <a href="https://cyt2023.github.io/-/china.html">中国 China map → <span>12 cities</span></a>
+      <a href="https://cyt2023.github.io/-/europe.html">欧洲 Europe map → <span>23 cities</span></a>
+    </div>
+  </section>
+
+  <footer><span>© 2026 cyt</span><span>rendered at <span id="fps">60</span> fps, no TensorRT required</span></footer>
 </main>
+
+<script>
+(() => {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const css = getComputedStyle(document.documentElement);
+  const C = n => css.getPropertyValue(n).trim();
+  const col = { amber: C("--amber"), cyan: C("--cyan"), coral: C("--coral"), fg: C("--fg"), muted: C("--muted"), line: C("--line"), feed: C("--feed") };
+
+  /* ================= camera feed ================= */
+  const feed = document.getElementById("feed");
+  const cv = document.getElementById("cam");
+  const ctx = cv.getContext("2d");
+  const scene = document.getElementById("scene");
+  const nameEl = document.getElementById("name");
+  const stabBtn = document.getElementById("stab");
+  const stabNote = document.getElementById("stabNote");
+  const frameEl = document.getElementById("frame");
+  const latEl = document.getElementById("lat");
+  const fpsEl = document.getElementById("fps");
+  let W = 0, H = 0, dpr = 1;
+  let stab = reduce, stabMix = reduce ? 1 : 0;
+  let ptr = null, vis = { x: 0, y: 0, w: 90, h: 120, init: false };
+
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    W = feed.clientWidth; H = feed.clientHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+  }
+  size(); addEventListener("resize", () => { size(); sky.size(); });
+
+  // pinhole projection onto the pitch: X lateral metres, d depth metres
+  const hz = () => H * 0.30;
+  const P = (X, d) => { const f = H - hz(); return [W / 2 + (X * f) / d * 0.9, hz() + f / d]; };
+
+  function setStab(on) {
+    stab = on;
+    stabBtn.setAttribute("aria-pressed", on);
+    stabNote.textContent = on ? "optical-flow stabilization · planned 2026–27 research" : "robot is walking · press S to stabilize";
+  }
+  setStab(stab);
+  stabBtn.addEventListener("click", () => setStab(!stab));
+  addEventListener("keydown", e => { if ((e.key === "s" || e.key === "S") && !e.metaKey && !e.ctrlKey && !/INPUT|TEXTAREA/.test(e.target.tagName)) setStab(!stab); });
+  feed.addEventListener("pointermove", e => { const r = feed.getBoundingClientRect(); ptr = { x: e.clientX - r.left, y: e.clientY - r.top }; });
+  feed.addEventListener("pointerleave", () => { ptr = null; });
+
+  function box(x, y, w, h, color, label) {
+    ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+    ctx.strokeRect(x, y, w, h);
+    const c = 8; ctx.lineWidth = 3; ctx.beginPath();
+    ctx.moveTo(x, y + c); ctx.lineTo(x, y); ctx.lineTo(x + c, y);
+    ctx.moveTo(x + w - c, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - c);
+    ctx.stroke();
+    ctx.font = "500 11px " + C("--mono");
+    const tw = ctx.measureText(label).width + 10;
+    ctx.fillStyle = color; ctx.fillRect(x - 0.75, y - 18, tw, 18);
+    ctx.fillStyle = col.feed; ctx.fillText(label, x + 4, y - 5);
+  }
+
+  function robot(X, d, color, t, phase) {
+    const [bx, by] = P(X, d);
+    const s = (H - hz()) / d;           // px per metre at that depth
+    const h = 0.62 * s, w = 0.26 * s;
+    const step = Math.sin(t * 7 + phase) * 0.04 * s;
+    ctx.fillStyle = color; ctx.globalAlpha = 0.85;
+    ctx.fillRect(bx - w / 2, by - h * 0.78, w, h * 0.42);                 // torso
+    ctx.beginPath(); ctx.arc(bx, by - h * 0.88, w * 0.32, 0, Math.PI * 2); ctx.fill(); // head
+    ctx.fillRect(bx - w * 0.42, by - h * 0.36, w * 0.3, h * 0.36 + step);   // legs
+    ctx.fillRect(bx + w * 0.12, by - h * 0.36, w * 0.3, h * 0.36 - step);
+    ctx.globalAlpha = 1;
+    return [bx - w * 0.75, by - h * 1.02, w * 1.5, h * 1.06];
+  }
+
+  const conf = (base, t, k) => (base + 0.02 * Math.sin(t * 1.7 + k)).toFixed(2);
+  let frame = 4213, last = performance.now(), fpsAcc = 0, fpsN = 0, hudT = 0;
+
+  function draw(now) {
+    const t = now / 1000;
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    fpsAcc += dt; fpsN++;
+    stabMix += ((stab ? 1 : 0) - stabMix) * Math.min(1, dt * 4);
+    const amp = 1 - stabMix * 0.94;
+    // gait bob + sway, plus slow head turn
+    const tx = (Math.sin(t * 2 * Math.PI * 0.9) * 9 + Math.sin(t * 0.5) * 14) * amp;
+    const ty = Math.abs(Math.sin(t * 2 * Math.PI * 0.9)) * 10 * amp - 5 * amp;
+    const rot = (Math.sin(t * 2 * Math.PI * 0.45) * 0.012 + Math.sin(t * 0.31) * 0.01) * amp;
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = col.feed; ctx.fillRect(0, 0, W, H);
+
+    ctx.save();
+    ctx.translate(W / 2, H / 2); ctx.rotate(rot); ctx.translate(-W / 2 + tx, -H / 2 + ty);
+
+    // pitch
+    const g = ctx.createLinearGradient(0, hz(), 0, H);
+    g.addColorStop(0, "#10231f"); g.addColorStop(1, "#14302a");
+    ctx.fillStyle = g; ctx.fillRect(-60, hz(), W + 120, H - hz() + 60);
+    for (let i = 0; i < 14; i++) {      // mowing stripes
+      if (i % 2) continue;
+      const [, y1] = P(0, 1 + i), [, y2] = P(0, 2 + i);
+      ctx.fillStyle = "#ffffff06"; ctx.fillRect(-60, y2, W + 120, y1 - y2);
+    }
+    ctx.strokeStyle = "#e6ecee55"; ctx.lineWidth = 1.5;
+    const line = (pts) => { ctx.beginPath(); pts.forEach(([X, d], i) => { const [x, y] = P(X, d); i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); }); ctx.stroke(); };
+    line([[-4.5, 1.2], [-4.5, 15]]); line([[4.5, 1.2], [4.5, 15]]);
+    line([[-4.5, 15], [4.5, 15]]); line([[-4.5, 8], [4.5, 8]]);
+    line([[-1.8, 15], [-1.8, 13], [1.8, 13], [1.8, 15]]);
+    line(Array.from({ length: 41 }, (_, i) => { const a = i / 40 * Math.PI * 2; return [Math.cos(a) * 1.5, 8 + Math.sin(a) * 1.5]; }));
+    // goal
+    const [gl, gy] = P(-1.3, 15), [gr] = P(1.3, 15), gh = (H - hz()) / 15 * 0.8;
+    ctx.strokeStyle = "#e6ecee99"; ctx.strokeRect(gl, gy - gh, gr - gl, gh);
+
+    // ball and robots
+    const bX = Math.sin(t * 0.37) * 2.6, bD = 6.5 + Math.sin(t * 0.23) * 3;
+    const team = [
+      { X: bX - 0.9 + Math.sin(t * 0.3) * 0.4, d: bD - 1.1, c: col.cyan, lab: "teammate", k: 1 },
+      { X: bX + 1.4, d: bD + 2.4 + Math.sin(t * 0.2), c: col.coral, lab: "opponent", k: 2 },
+      { X: -2.6 + Math.sin(t * 0.15), d: 12.5, c: col.coral, lab: "opponent", k: 3 }
+    ].sort((a, b) => b.d - a.d);
+    const boxes = [];
+    for (const r of team) { const bb = robot(r.X, r.d, r.c, t, r.k); boxes.push([bb, r.c, `${r.lab} ${conf(0.9, t, r.k)}`]); }
+    const [bx, by] = P(bX, bD), br = Math.max(4, (H - hz()) / bD * 0.11);
+    ctx.fillStyle = "#f2f2f2"; ctx.beginPath(); ctx.arc(bx, by - br, br, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "#222"; ctx.beginPath(); ctx.arc(bx - br * 0.2, by - br * 1.1, br * 0.35, 0, Math.PI * 2); ctx.fill();
+    boxes.push([[bx - br * 1.6, by - br * 2.6, br * 3.2, br * 3.2], col.amber, `ball ${conf(0.93, t, 4)}`]);
+    // person box around the name (layout position, so it shakes with the scene)
+    const nx = nameEl.offsetLeft + nameEl.offsetParent.offsetLeft, ny = nameEl.offsetTop + nameEl.offsetParent.offsetTop;
+    boxes.push([[nx - 10, ny - 4, nameEl.offsetWidth + 20, nameEl.offsetHeight + 10], col.amber, `person ${conf(0.97, t, 5)}`]);
+    for (const [[x, y, w, h], c, l] of boxes) box(x, y, w, h, c, l);
+    ctx.restore();
+
+    // visitor box follows the pointer in screen space
+    if (ptr) {
+      if (!vis.init) { vis.x = ptr.x; vis.y = ptr.y; vis.init = true; }
+      vis.x += (ptr.x - vis.x) * Math.min(1, dt * 10); vis.y += (ptr.y - vis.y) * Math.min(1, dt * 10);
+      box(vis.x - 40, vis.y - 50, 80, 100, col.fg, `visitor ${conf(0.88, t, 6)}`);
+    } else vis.init = false;
+
+    scene.style.transform = `translate(${tx}px, ${ty}px) rotate(${rot}rad)`;
+
+    frame++; hudT += dt;
+    if (hudT > 0.1) {
+      hudT = 0;
+      frameEl.textContent = String(frame).padStart(6, "0");
+      latEl.textContent = (6.32 + Math.sin(t * 3.1) * 0.18).toFixed(2);
+    }
+    if (fpsAcc > 1) { fpsEl.textContent = Math.round(fpsN / fpsAcc); fpsAcc = 0; fpsN = 0; }
+    if (!reduce) requestAnimationFrame(draw);
+  }
+  document.fonts.ready.then(() => requestAnimationFrame(draw));
+  if (reduce) feed.addEventListener("pointermove", () => requestAnimationFrame(draw));
+
+  /* ================= travels constellation ================= */
+  const coords = {
+    "武汉":["Wuhan",114.31,30.59],"宜昌":["Yichang",111.29,30.69],"烟台":["Yantai",121.45,37.46],"香港":["Hong Kong",114.17,22.32],
+    "深圳":["Shenzhen",114.06,22.54],"海牙":["The Hague",4.30,52.07],"埃因霍芬":["Eindhoven",5.47,51.44],"鹿特丹":["Rotterdam",4.48,51.92],
+    "阿姆斯特丹":["Amsterdam",4.90,52.37],"代尔夫特":["Delft",4.36,52.01],"苏州":["Suzhou",120.59,31.30],"上海":["Shanghai",121.47,31.23],
+    "南京":["Nanjing",118.80,32.06],"北京":["Beijing",116.41,39.90],"布鲁塞尔":["Brussels",4.35,50.85],"天津":["Tianjin",117.20,39.08],
+    "罗马":["Rome",12.50,41.90],"米兰":["Milan",9.19,45.46],"巴黎":["Paris",2.35,48.86],"西安":["Xi'an",108.94,34.34],
+    "杜塞尔多夫":["Düsseldorf",6.77,51.23],"乌特勒支":["Utrecht",5.12,52.09],"尼斯":["Nice",7.26,43.71],"摩纳哥":["Monaco",7.42,43.74],
+    "芒通":["Menton",7.50,43.78],"汉中":["Hanzhong",107.02,33.07],"科隆":["Cologne",6.96,50.94],"布雷达":["Breda",4.78,51.59],
+    "圣地亚哥":["San Diego",-117.16,32.72],"昂蒂布":["Antibes",7.13,43.58],"埃兹":["Èze",7.36,43.73],"苏黎世":["Zurich",8.54,47.38],
+    "伯尔尼":["Bern",7.45,46.95],"施皮茨":["Spiez",7.69,46.69],"日内瓦":["Geneva",6.14,46.20],"根特":["Ghent",3.73,51.05]
+  };
+  const trips = {
+    2024: "武汉 宜昌 烟台 香港 深圳 海牙 埃因霍芬 鹿特丹 阿姆斯特丹 代尔夫特 苏州 上海 南京 北京 布鲁塞尔",
+    2025: "天津 北京 苏州 上海 罗马 米兰 巴黎 西安 杜塞尔多夫 乌特勒支",
+    2026: "尼斯 摩纳哥 芒通 北京 西安 汉中 科隆 布雷达 圣地亚哥 杜塞尔多夫 尼斯 昂蒂布 埃兹 苏黎世 伯尔尼 施皮茨 日内瓦 西安 香港 根特"
+  };
+  for (const y in trips) trips[y] = trips[y].split(" ");
+  const yearCol = { 2024: col.cyan, 2025: col.amber, 2026: col.coral };
+
+  const skyCv = document.getElementById("sky"), sctx = skyCv.getContext("2d"), tip = document.getElementById("tip");
+  let sel = "all", pts = [];
+  const sky = {
+    size() { const r = skyCv.getBoundingClientRect(); skyCv.width = r.width * dpr; skyCv.height = r.height * dpr; sky.draw(); },
+    proj(lon, lat) {
+      const w = skyCv.width / dpr, h = skyCv.height / dpr, pad = 28;
+      return [pad + (lon + 125) / 255 * (w - pad * 2), pad + (57 - lat) / 39 * (h - pad * 2)];
+    },
+    draw() {
+      const w = skyCv.width / dpr, h = skyCv.height / dpr;
+      sctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      sctx.clearRect(0, 0, w, h);
+      // faint graticule
+      sctx.strokeStyle = col.line; sctx.lineWidth = 1; sctx.setLineDash([2, 4]);
+      for (let lat = 20; lat <= 55; lat += 10) { const [, y] = sky.proj(0, lat); sctx.beginPath(); sctx.moveTo(0, y); sctx.lineTo(w, y); sctx.stroke(); }
+      sctx.setLineDash([]);
+      sctx.font = "11px " + C("--mono"); sctx.fillStyle = col.muted;
+      [["SAN DIEGO", -117, 25], ["EUROPE", 0, 56], ["CHINA", 105, 25]].forEach(([s, lo, la]) => { const [x, y] = sky.proj(lo, la); sctx.fillText(s, x, y); });
+      // paths
+      const years = sel === "all" ? Object.keys(trips) : [sel];
+      for (const y of years) {
+        sctx.strokeStyle = yearCol[y]; sctx.globalAlpha = sel === "all" ? 0.45 : 0.85; sctx.lineWidth = 1.2;
+        const seq = trips[y];
+        for (let i = 1; i < seq.length; i++) {
+          const [x1, y1] = sky.proj(coords[seq[i - 1]][1], coords[seq[i - 1]][2]);
+          const [x2, y2] = sky.proj(coords[seq[i]][1], coords[seq[i]][2]);
+          const dx = x2 - x1, lift = Math.min(90, Math.hypot(dx, y2 - y1) * 0.28);
+          sctx.beginPath(); sctx.moveTo(x1, y1); sctx.quadraticCurveTo((x1 + x2) / 2, Math.min(y1, y2) - lift, x2, y2); sctx.stroke();
+        }
+      }
+      sctx.globalAlpha = 1;
+      // stars
+      pts = [];
+      const visited = new Set(years.flatMap(y => trips[y]));
+      for (const k in coords) {
+        const [en, lon, lat] = coords[k], [x, y] = sky.proj(lon, lat), on = visited.has(k);
+        const ys = Object.keys(trips).filter(y => trips[y].includes(k));
+        sctx.fillStyle = on ? col.fg : col.line;
+        sctx.shadowColor = col.amber; sctx.shadowBlur = on ? 8 : 0;
+        sctx.beginPath(); sctx.arc(x, y, on ? 2.6 : 1.8, 0, Math.PI * 2); sctx.fill();
+        pts.push({ x, y, label: `${en} ${k} · ${ys.join(", ")}` });
+      }
+      sctx.shadowBlur = 0;
+    }
+  };
+  const yearsEl = document.getElementById("years");
+  ["all", "2024", "2025", "2026"].forEach(y => {
+    const b = document.createElement("button");
+    b.type = "button"; b.id = "yr-" + y; b.textContent = y === "all" ? "all" : y;
+    if (y !== "all") b.style.borderColor = yearCol[y];
+    b.setAttribute("aria-pressed", y === sel);
+    b.addEventListener("click", () => { sel = y; yearsEl.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); sky.draw(); });
+    yearsEl.appendChild(b);
+  });
+  skyCv.addEventListener("pointermove", e => {
+    const r = skyCv.getBoundingClientRect(), mx = e.clientX - r.left, my = e.clientY - r.top;
+    let best = null, bd = 14;
+    for (const p of pts) { const d = Math.hypot(p.x - mx, p.y - my); if (d < bd) { bd = d; best = p; } }
+    if (best) { tip.hidden = false; tip.textContent = best.label; tip.style.left = best.x + "px"; tip.style.top = best.y + "px"; }
+    else tip.hidden = true;
+  });
+  skyCv.addEventListener("pointerleave", () => { tip.hidden = true; });
+  document.fonts.ready.then(() => sky.size());
+})();
+</script>
 </body>
 </html>
