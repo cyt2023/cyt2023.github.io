@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>cyt</title>
+<meta name="description" content="cyt 的个人主页：TU/e 学生，羽毛球相关研究，旅行足迹地图。">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: one narrow column; name and intro up top, then a "足迹" section whose cards open the two maps. Same night palette as the maps. */
+:root {
+  --bg: #0b1120;
+  --panel: #111a2e;
+  --line: #2a3a5c;
+  --glow: #ffc65c;
+  --fg: #e8ecf5;
+  --muted: #8a97b4;
+  --display: "Noto Serif SC", "Songti SC", serif;
+  --body: "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--fg); margin: 0; }
+body {
+  font-family: var(--body);
+  line-height: 1.7;
+  padding-block: clamp(48px, 10vh, 96px) 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  /* faint star field */
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, #ffffff33 50%, transparent 51%),
+    radial-gradient(1px 1px at 72% 9%, #ffffff2a 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 34%, #ffffff22 50%, transparent 51%),
+    radial-gradient(1px 1px at 40% 6%, #ffffff26 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 58% 26%, #ffc65c55 50%, transparent 51%);
+  background-repeat: no-repeat;
+}
+main { max-width: 720px; margin: 0 auto; display: grid; gap: 56px; }
+
+.intro { display: grid; gap: 14px; }
+.coord { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .04em; margin: 0; }
+h1 { font-family: var(--display); font-weight: 900; font-size: clamp(56px, 14vw, 96px); line-height: 1; margin: 0; letter-spacing: .01em; }
+h1 .dot { color: var(--glow); }
+.lead { font-size: 18px; margin: 0; max-width: 34em; }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
+.tags li { font-size: 13px; padding: 3px 12px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); }
+
+section { display: grid; gap: 18px; }
+h2 { font-family: var(--display); font-size: 22px; margin: 0; display: flex; align-items: baseline; gap: 12px; }
+h2 small { font-family: var(--body); font-weight: 400; font-size: 13px; color: var(--muted); }
+p { margin: 0; }
+.muted { color: var(--muted); }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+a.card {
+  display: grid; gap: 12px; padding: 22px; border-radius: 10px; text-decoration: none; color: var(--fg);
+  background: var(--panel); border: 1px solid var(--line); transition: border-color .2s, transform .2s;
+}
+a.card:hover, a.card:focus-visible { border-color: var(--glow); transform: translateY(-2px); outline: none; }
+.card .top { display: flex; justify-content: space-between; align-items: baseline; }
+.card h3 { font-family: var(--display); font-size: 22px; margin: 0; }
+.card .arrow { color: var(--muted); }
+a.card:hover .arrow { color: var(--glow); }
+.nums { display: flex; gap: 22px; }
+.nums b { display: block; font-family: var(--display); font-size: 28px; color: var(--glow); line-height: 1; font-variant-numeric: tabular-nums; }
+.nums span { font-size: 12px; color: var(--muted); letter-spacing: .08em; }
+.cities { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+.years { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; font-size: 14px; }
+.years dt { font-family: var(--mono); color: var(--glow); font-variant-numeric: tabular-nums; }
+.years dd { margin: 0; color: var(--muted); }
+
+footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; }
+@media (prefers-reduced-motion: reduce) { a.card { transition: none; } a.card:hover { transform: none; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="intro">
+    <p class="coord">51.4416° N, 5.4697° E · Eindhoven</p>
+    <h1>cyt<span class="dot">.</span></h1>
+    <p class="lead">在埃因霍芬理工大学（TU/e）读书，目前在做和羽毛球有关的研究。课余时间喜欢到处走走，把去过的城市一座座点亮。</p>
+    <ul class="tags">
+      <li>TU/e</li>
+      <li>羽毛球研究</li>
+      <li>旅行</li>
+    </ul>
+  </header>
+
+  <section aria-labelledby="trips">
+    <h2 id="trips">足迹 <small>2024 – 2026 · 36 座城市</small></h2>
+    <div class="cards">
+      <a class="card" href="https://cyt2023.github.io/-/china.html">
+        <div class="top"><h3>中国</h3><span class="arrow">→</span></div>
+        <div class="nums">
+          <div><b>12</b><span>座城市</span></div>
+          <div><b>9</b><span>个省级行政区</span></div>
+        </div>
+        <p class="cities">北京、上海、西安、香港、苏州、南京……</p>
+      </a>
+      <a class="card" href="https://cyt2023.github.io/-/europe.html">
+        <div class="top"><h3>欧洲</h3><span class="arrow">→</span></div>
+        <div class="nums">
+          <div><b>23</b><span>座城市</span></div>
+          <div><b>7</b><span>个国家</span></div>
+        </div>
+        <p class="cities">阿姆斯特丹、巴黎、罗马、苏黎世、尼斯……</p>
+      </a>
+    </div>
+    <dl class="years">
+      <dt>2024</dt><dd>荷兰各城、布鲁塞尔；回国走了武汉、宜昌、烟台、深圳、香港、长三角和北京</dd>
+      <dt>2025</dt><dd>罗马、米兰、巴黎、杜塞尔多夫、乌特勒支；天津、北京、上海、苏州、西安</dd>
+      <dt>2026</dt><dd>蓝色海岸、瑞士、科隆、布雷达、根特、圣地亚哥（美国）；北京、西安、汉中、香港</dd>
+    </dl>
+  </section>
+
+  <footer>© 2026 cyt</footer>
+</main>
+</body>
+</html>
