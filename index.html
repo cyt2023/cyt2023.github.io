@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>cyt</title>
-<meta name="description" content="cyt 的个人主页：TU/e 学生，羽毛球相关研究，旅行足迹地图。">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400&display=swap">
+<meta name="description" content="cyt — Computer Science and Engineering student at TU/e working on humanoid robot perception, XR visualization and human–AI interaction.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap">
 <style>
-/* Layout: one narrow column; name and intro up top, then a "足迹" section whose cards open the two maps. Same night palette as the maps. */
+/* Layout: one reading column. Intro, then dated entries in a two-column ledger (date | work), each with the measured result pulled out in mono. Travels at the end link the two maps. Night palette shared with the maps. */
 :root {
   --bg: #0b1120;
   --panel: #111a2e;
@@ -15,7 +15,7 @@
   --glow: #ffc65c;
   --fg: #e8ecf5;
   --muted: #8a97b4;
-  --display: "Noto Serif SC", "Songti SC", serif;
+  --display: "Noto Serif SC", "Songti SC", Georgia, serif;
   --body: "Noto Sans SC", "PingFang SC", system-ui, sans-serif;
   --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
   color-scheme: dark;
@@ -24,11 +24,11 @@
 html, body { background: var(--bg); color: var(--fg); margin: 0; }
 body {
   font-family: var(--body);
+  font-size: 15px;
   line-height: 1.7;
   padding-block: clamp(48px, 10vh, 96px) 48px;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
-  /* faint star field */
   background-image:
     radial-gradient(1px 1px at 12% 18%, #ffffff33 50%, transparent 51%),
     radial-gradient(1px 1px at 72% 9%, #ffffff2a 50%, transparent 51%),
@@ -37,42 +37,68 @@ body {
     radial-gradient(1.5px 1.5px at 58% 26%, #ffc65c55 50%, transparent 51%);
   background-repeat: no-repeat;
 }
-main { max-width: 720px; margin: 0 auto; display: grid; gap: 56px; }
-
-.intro { display: grid; gap: 14px; }
-.coord { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .04em; margin: 0; }
-h1 { font-family: var(--display); font-weight: 900; font-size: clamp(56px, 14vw, 96px); line-height: 1; margin: 0; letter-spacing: .01em; }
-h1 .dot { color: var(--glow); }
-.lead { font-size: 18px; margin: 0; max-width: 34em; }
-.tags { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
-.tags li { font-size: 13px; padding: 3px 12px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); }
-
-section { display: grid; gap: 18px; }
-h2 { font-family: var(--display); font-size: 22px; margin: 0; display: flex; align-items: baseline; gap: 12px; }
-h2 small { font-family: var(--body); font-weight: 400; font-size: 13px; color: var(--muted); }
+a { color: var(--fg); text-decoration-color: var(--line); text-underline-offset: 3px; }
+a:hover { color: var(--glow); text-decoration-color: var(--glow); }
+a:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; border-radius: 2px; }
+main { max-width: 760px; margin: 0 auto; display: grid; gap: 64px; }
 p { margin: 0; }
-.muted { color: var(--muted); }
 
-.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.intro { display: grid; gap: 16px; }
+.coord { font-family: var(--mono); font-size: 12px; color: var(--muted); letter-spacing: .04em; }
+h1 { font-family: var(--display); font-weight: 900; font-size: clamp(56px, 14vw, 96px); line-height: 1; margin: 0; }
+h1 .dot { color: var(--glow); }
+.lead { font-size: 18px; max-width: 36em; text-wrap: pretty; }
+.focus { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.focus li { font-size: 13px; padding: 3px 12px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); }
+
+section { display: grid; gap: 20px; }
+h2 {
+  font-family: var(--mono); font-weight: 500; font-size: 12px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); margin: 0; padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+
+.entries { display: grid; gap: 30px; }
+.entry { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 4px 24px; }
+.when { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 4px; font-variant-numeric: tabular-nums; }
+.what { display: grid; gap: 6px; min-width: 0; }
+.what h3 { font-family: var(--display); font-weight: 600; font-size: 19px; line-height: 1.35; margin: 0; }
+.role { font-size: 13px; color: var(--muted); }
+.what ul { margin: 2px 0 0; padding-left: 18px; display: grid; gap: 4px; }
+.what li::marker { color: var(--line); }
+.metrics { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.metric { font-family: var(--mono); font-size: 12px; color: var(--glow); background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; }
+.links { font-size: 13px; display: flex; flex-wrap: wrap; gap: 14px; }
+.now { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--bg); background: var(--glow); border-radius: 4px; padding: 1px 6px; vertical-align: 3px; margin-left: 6px; }
+
+.pubs { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; }
+.pubs li { display: grid; gap: 2px; }
+.pubs .t { font-weight: 500; }
+.pubs .v { font-size: 13px; color: var(--muted); }
+
+.skills { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 10px 24px; margin: 0; }
+.skills dt { font-family: var(--mono); font-size: 12px; color: var(--muted); padding-top: 3px; }
+.skills dd { margin: 0; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
 a.card {
-  display: grid; gap: 12px; padding: 22px; border-radius: 10px; text-decoration: none; color: var(--fg);
+  display: grid; gap: 12px; padding: 20px; border-radius: 10px; text-decoration: none; color: var(--fg);
   background: var(--panel); border: 1px solid var(--line); transition: border-color .2s, transform .2s;
 }
-a.card:hover, a.card:focus-visible { border-color: var(--glow); transform: translateY(-2px); outline: none; }
+a.card:hover, a.card:focus-visible { border-color: var(--glow); transform: translateY(-2px); outline: none; color: var(--fg); }
 .card .top { display: flex; justify-content: space-between; align-items: baseline; }
-.card h3 { font-family: var(--display); font-size: 22px; margin: 0; }
+.card h3 { font-family: var(--display); font-size: 20px; margin: 0; }
 .card .arrow { color: var(--muted); }
 a.card:hover .arrow { color: var(--glow); }
 .nums { display: flex; gap: 22px; }
-.nums b { display: block; font-family: var(--display); font-size: 28px; color: var(--glow); line-height: 1; font-variant-numeric: tabular-nums; }
-.nums span { font-size: 12px; color: var(--muted); letter-spacing: .08em; }
-.cities { font-size: 13px; color: var(--muted); line-height: 1.6; }
-
-.years { display: grid; grid-template-columns: auto 1fr; gap: 6px 18px; font-size: 14px; }
-.years dt { font-family: var(--mono); color: var(--glow); font-variant-numeric: tabular-nums; }
-.years dd { margin: 0; color: var(--muted); }
+.nums b { display: block; font-family: var(--display); font-size: 26px; color: var(--glow); line-height: 1; font-variant-numeric: tabular-nums; }
+.nums span { font-size: 12px; color: var(--muted); }
 
 footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 18px; }
+
+@media (max-width: 560px) {
+  .entry, .skills { grid-template-columns: 1fr; }
+  .when { padding-top: 0; }
+}
 @media (prefers-reduced-motion: reduce) { a.card { transition: none; } a.card:hover { transform: none; } }
 </style>
 </head>
@@ -81,39 +107,147 @@ footer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--line)
   <header class="intro">
     <p class="coord">51.4416° N, 5.4697° E · Eindhoven</p>
     <h1>cyt<span class="dot">.</span></h1>
-    <p class="lead">在埃因霍芬理工大学（TU/e）读书，目前在做和羽毛球有关的研究。课余时间喜欢到处走走，把去过的城市一座座点亮。</p>
-    <ul class="tags">
-      <li>TU/e</li>
-      <li>羽毛球研究</li>
-      <li>旅行</li>
+    <p class="lead">Computer Science and Engineering student at TU/e. I build perception pipelines for humanoid soccer robots, interactive XR tools for exploring spatiotemporal data, and study how people decide what an AI may say on their behalf.</p>
+    <ul class="focus">
+      <li>Robot perception</li>
+      <li>XR &amp; visualization</li>
+      <li>Human–AI interaction</li>
     </ul>
   </header>
 
-  <section aria-labelledby="trips">
-    <h2 id="trips">足迹 <small>2024 – 2026 · 36 座城市</small></h2>
+  <section aria-labelledby="h-exp">
+    <h2 id="h-exp">Research &amp; robotics</h2>
+    <div class="entries">
+
+      <article class="entry">
+        <div class="when">Jul 2026 – now</div>
+        <div class="what">
+          <h3>AI delegation in team meetings<span class="now">NOW</span></h3>
+          <p class="role">Undergraduate Research Assistant · Northeastern University</p>
+          <ul>
+            <li>Co-author of a CHI 2027 submission on when people let an AI proxy speak for them in meetings.</li>
+            <li>Studying how the type of communicative act and the meeting context shift that willingness.</li>
+          </ul>
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="when">2024 – now</div>
+        <div class="what">
+          <h3>Humanoid robot perception<span class="now">NOW</span></h3>
+          <p class="role">Tech United · RoboCup Humanoid team</p>
+          <ul>
+            <li>Built and deployed a ROS 2 object-detection visualization pipeline on the Booster T1 humanoid: camera frames, model inference, annotated ROS topics, Foxglove.</li>
+            <li>Benchmarked TensorRT against ONNX Runtime CUDA over 50 timed iterations after warm-up.</li>
+            <li>Next (2026–27): optical-flow camera-motion estimation and image stabilization, so teammate/opponent classification holds up while the robot walks and turns its head.</li>
+          </ul>
+          <div class="metrics">
+            <span class="metric">6.32 ms vs 13.73 ms</span>
+            <span class="metric">2.17× faster (preliminary)</span>
+            <span class="metric">11/11 detector tests</span>
+          </div>
+          <div class="links"><a href="https://techunited.nl/">Tech United ↗</a></div>
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="when">2025 – 2026</div>
+        <div class="what">
+          <h3>STC SlabLab XR</h3>
+          <p class="role">Visiting Research Intern · HKUST VisLab</p>
+          <ul>
+            <li>Sole developer of a desktop/VR prototype for exploring spatiotemporal data, in Unity/C# and Python, integrating VolumeSTCube and MatPlotAgent.</li>
+            <li>Designed typed APIs linking 3D visualization, S4D analysis services and LLM-assisted Matplotlib generation; implemented data loading, session history, input validation and release checks.</li>
+          </ul>
+          <div class="links">
+            <a href="https://github.com/cyt2023/STC-SlabLab-XR">Project on GitHub ↗</a>
+            <a href="https://vis.cse.ust.hk/">HKUST VisLab ↗</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="when">Jul – Aug 2025</div>
+        <div class="what">
+          <h3>LacAIDes</h3>
+          <p class="role">Collaboration with Xi’an Jiaotong University</p>
+          <ul>
+            <li>Co-authored an LLM-assisted workflow for contour extraction, morphology, path planning and DXF export.</li>
+            <li>Contributed to the user study.</li>
+          </ul>
+          <div class="metrics">
+            <span class="metric">34 participants</span>
+            <span class="metric">MUSE Design Awards · Silver</span>
+          </div>
+          <div class="links"><a href="https://arxiv.org/abs/2510.08326">arXiv:2510.08326 ↗</a></div>
+        </div>
+      </article>
+
+      <article class="entry">
+        <div class="when">2026</div>
+        <div class="what">
+          <h3>Quercus Airport</h3>
+          <p class="role">Systems integration capstone · TU/e</p>
+          <ul>
+            <li>Fixed distributed C routing logic that kept picking busy equivalent services, through rerouting and integration fixes.</li>
+          </ul>
+          <div class="metrics">
+            <span class="metric">52.741 s → 22.790 s</span>
+            <span class="metric">−56.8% scenario time</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section aria-labelledby="h-pub">
+    <h2 id="h-pub">Publications &amp; honors</h2>
+    <ul class="pubs">
+      <li>
+        <span class="t">Would You Let Your Proxy Say That? Act Type, Context, and the Boundary of AI Delegation in Team Meetings</span>
+        <span class="v">Co-author · submitted to CHI 2027</span>
+      </li>
+      <li>
+        <span class="t"><a href="https://arxiv.org/abs/2510.08326">LacAIDes</a></span>
+        <span class="v">Co-author · arXiv:2510.08326 · MUSE Design Awards Silver</span>
+      </li>
+      <li>
+        <span class="t">Competitive programming</span>
+        <span class="v">CSP-S Second Prize · NOIP Third Prize (provincial, China)</span>
+      </li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="h-edu">
+    <h2 id="h-edu">Education &amp; skills</h2>
+    <dl class="skills">
+      <dt>2024 – 2027</dt>
+      <dd><b>BSc Computer Science and Engineering</b>, TU/e (expected 2027)<br><span class="role">Data Structures &amp; Algorithms · Computer Systems · Software Design · Embedded Systems</span></dd>
+      <dt>Languages</dt><dd>Python, C, C++, C#, Java</dd>
+      <dt>Robotics / AI</dt><dd>ROS 2, TensorRT, ONNX Runtime, Unity, NumPy, pandas</dd>
+      <dt>Engineering</dt><dd>Git, Linux, CMake, Make, GitHub Actions / CI, REST/JSON APIs</dd>
+    </dl>
+  </section>
+
+  <section aria-labelledby="h-trips">
+    <h2 id="h-trips">Travels · 足迹</h2>
     <div class="cards">
       <a class="card" href="https://cyt2023.github.io/-/china.html">
-        <div class="top"><h3>中国</h3><span class="arrow">→</span></div>
+        <div class="top"><h3>中国 China</h3><span class="arrow">→</span></div>
         <div class="nums">
-          <div><b>12</b><span>座城市</span></div>
-          <div><b>9</b><span>个省级行政区</span></div>
+          <div><b>12</b><span>cities</span></div>
+          <div><b>9</b><span>provinces</span></div>
         </div>
-        <p class="cities">北京、上海、西安、香港、苏州、南京……</p>
       </a>
       <a class="card" href="https://cyt2023.github.io/-/europe.html">
-        <div class="top"><h3>欧洲</h3><span class="arrow">→</span></div>
+        <div class="top"><h3>欧洲 Europe</h3><span class="arrow">→</span></div>
         <div class="nums">
-          <div><b>23</b><span>座城市</span></div>
-          <div><b>7</b><span>个国家</span></div>
+          <div><b>23</b><span>cities</span></div>
+          <div><b>7</b><span>countries</span></div>
         </div>
-        <p class="cities">阿姆斯特丹、巴黎、罗马、苏黎世、尼斯……</p>
       </a>
     </div>
-    <dl class="years">
-      <dt>2024</dt><dd>荷兰各城、布鲁塞尔；回国走了武汉、宜昌、烟台、深圳、香港、长三角和北京</dd>
-      <dt>2025</dt><dd>罗马、米兰、巴黎、杜塞尔多夫、乌特勒支；天津、北京、上海、苏州、西安</dd>
-      <dt>2026</dt><dd>蓝色海岸、瑞士、科隆、布雷达、根特、圣地亚哥（美国）；北京、西安、汉中、香港</dd>
-    </dl>
   </section>
 
   <footer>© 2026 cyt</footer>
