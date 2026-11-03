@@ -118,7 +118,8 @@ section { display: grid; gap: 28px; }
 .org-meta { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: .03em; }
 a.org:hover { background: #ffbf4d1f; color: var(--fg); }
 a.org:hover .org-meta { color: var(--fg); }
-.inst { font-weight: 500; color: var(--fg); border-bottom: 1.5px solid var(--amber); }
+.inst { font-weight: 500; color: var(--fg); text-decoration: none; border-bottom: 1.5px solid var(--amber); }
+a.inst:hover { color: var(--amber); }
 
 /* per-project interactive visuals */
 .viz { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: grid; min-width: 0; }
@@ -243,7 +244,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       <dl class="facts">
         <dt>BASED</dt><dd>Eindhoven, NL</dd>
         <dt>STUDY</dt><dd>BSc Computer Science &amp; Engineering, TU/e · 2024–2027</dd>
-        <dt>NOW</dt><dd>Research assistant at <span class="inst">Northeastern University</span>; Tech United humanoid team</dd>
+        <dt>NOW</dt><dd>Research assistant at <span class="inst">Northeastern University</span>; <a class="inst" href="https://techunited.nl/">Tech United</a> humanoid team</dd>
         <dt>BEFORE</dt><dd>Visiting research intern, <span class="inst">HKUST VisLab</span></dd>
         <dt>COURSES</dt><dd>Data Structures &amp; Algorithms, Computer Systems, Software Design, Embedded Systems</dd>
       </dl>
@@ -357,13 +358,12 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
         <div class="when">2024 – now<br><span class="live">live</span></div>
         <div class="what">
           <h3>Humanoid robot perception</h3>
-          <p class="role">Tech United · RoboCup Humanoid</p>
+          <a class="org" href="https://techunited.nl/" data-label="team 0.99"><span class="org-name">Tech <em>United</em></span><span class="org-meta">RoboCup Humanoid · TU/e, Eindhoven · 51.45° N, 5.49° E</span></a>
           <ul>
             <li>Built and deployed a ROS 2 object-detection visualization pipeline on the Booster T1: camera frames → model inference → annotated ROS topics → Foxglove. Passes all 11 detector tests.</li>
             <li>Next, 2026–27: optical-flow camera-motion estimation and image stabilization, so teammate/opponent classification holds up while the robot walks and turns its head. The toggle at the top of this page is a toy version.</li>
           </ul>
-          <div class="links"><a href="https://techunited.nl/">techunited.nl ↗</a></div>
-        </div>
+                  </div>
         <div class="side">
           <div class="bars" aria-label="Mean pipeline latency, 50 timed iterations after warm-up">
             <div class="bar win"><div class="lab"><b>TensorRT</b><span>6.32 ms</span></div><div class="track"><div class="fill" style="width:46.0%"></div></div></div>
