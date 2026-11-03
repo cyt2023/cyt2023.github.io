@@ -404,10 +404,10 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       </div>
 
       <figure class="shot">
-        <video controls muted playsinline preload="metadata" poster="img/quercus-arrival.jpg" width="1600" height="900">
-          <source src="media/quercus-reselection.mp4" type="video/mp4">
+        <video controls muted playsinline preload="metadata" poster="img/quercus-continuous-arrival.jpg" width="1600" height="900">
+          <source src="media/quercus-continuous.mp4" type="video/mp4">
         </video>
-        <figcaption>Recorded simulator runs, same router, authorized group {3, 4}. Left: service 3 is free, the tub goes 1 → 2 → 3. Right: service 3 refuses, the router picks service 4 and the tub goes 1 → 2 → 5 → 6 → 4. Labels and outlines added to the real footage.</figcaption>
+        <figcaption>Recorded simulator runs on a continuous conveyor layout, same router, authorized group {3, 4}, seed 1. Left: service 3 is free, the tub goes 1 → 2 → 3. Right: service 3 refuses, the router picks service 4 and the tub goes 1 → 2 → 5 → 6 → 4. Labels and the final arrival freeze frames are added to the real footage; this is simulator evidence, not a hardware run.</figcaption>
       </figure>
 
       <div class="f-body">
@@ -433,7 +433,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       </div>
 
       <div class="viz">
-        <div class="viz-bar top"><span><b>Replay the three cases</b> · same six modules as the video</span><span class="illus">end times measured · motion between them illustrative</span></div>
+        <div class="viz-bar top"><span><b>Replay the three cases</b> · layout as in the video</span><span class="illus">end times from the A2 experiment · motion illustrative</span></div>
         <canvas id="route" height="260"></canvas>
         <div class="viz-bar">
           <span class="seg" role="group" aria-label="Case"><button type="button" id="rNormal" aria-pressed="false">normal</button><button type="button" id="rBefore" aria-pressed="true">BUSY · before</button><button type="button" id="rAfter" aria-pressed="false">BUSY · after</button></span>
@@ -968,8 +968,8 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
   {
     const cv = document.getElementById("route"), clockEl = document.getElementById("rClock");
     const btn = { normal: document.getElementById("rNormal"), before: document.getElementById("rBefore"), after: document.getElementById("rAfter") };
-    // module grid positions as in the recorded six-module layout
-    const pos = { 1: [0, 1], 2: [1, 1], 5: [2, 1], 6: [3, 1], 3: [1, 2], 4: [3, 0] };
+    // module grid positions as in the continuous-conveyor video layout
+    const pos = { 1: [0, 0], 2: [1, 0], 5: [2, 0], 6: [3, 0], 3: [1, 1], 4: [3, 1] };
     // keyframes [module, sim seconds]; final times: normal seed-1 run, BUSY cases mean of 3 paired seeds
     const cases = {
       normal: { keys: [[1, 0], [2, 4.8], [3, 9.6]], busy: false, end: "delivered at service 3" },
@@ -984,7 +984,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       const cs = cases[mode], last = cs.keys[cs.keys.length - 1][1];
       t += dt * 6; if (t > last + 9) t = 0;
       const tc = Math.min(t, last);
-      const cell = Math.min((W - 40) / 4.4, (H - 40) / 3.2), gx = (W - cell * 4) / 2, gy = 20;
+      const cell = Math.min((W - 40) / 4.4, (H - 60) / 2.3), gx = (W - cell * 4) / 2, gy = 16;
       const C = m => [gx + pos[m][0] * cell + cell / 2, gy + pos[m][1] * cell + cell / 2];
       // belts between neighbours
       c.strokeStyle = K.line; c.lineWidth = 6; c.lineCap = "round";
@@ -1007,7 +1007,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
         c.fillStyle = K.fg; c.textAlign = "left"; c.fillText(m, x - s / 2 + 6, y - s / 2 + 10);
         if (service) {
           c.textAlign = "center"; c.fillStyle = stroke === K.coral ? K.coral : K.cyan;
-          c.fillText(m === "3" && busy3 ? "service 3 · BUSY" : "service " + m, x, m === "4" ? y - s / 2 - 10 : y + s / 2 + 12);
+          c.fillText(m === "3" && busy3 ? "service 3 · BUSY" : "service " + m, x, y + s / 2 + 12);
         }
       }
       // tub position from keyframes
