@@ -79,6 +79,34 @@ section { display: grid; gap: 28px; }
 .facts dt { font-family: var(--mono); font-size: 11px; color: var(--muted); padding-top: 3px; }
 .facts dd { margin: 0; }
 
+/* featured projects */
+.feature { display: grid; gap: 28px; padding-bottom: 56px; border-bottom: 1px solid var(--line); }
+.feature + .feature { padding-top: 8px; }
+.f-head { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 20px; align-items: start; }
+.f-no { font-family: var(--display); font-weight: 800; font-size: clamp(48px, 7vw, 76px); line-height: .9; color: var(--amber); }
+.feature .when { padding-top: 0; }
+.feature h3 { font-family: var(--display); font-weight: 800; font-size: clamp(32px, 5vw, 52px); line-height: 1.05; margin: 6px 0 8px; text-wrap: balance; }
+.f-sub { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--muted); }
+.shot { margin: 0; display: grid; gap: 10px; }
+.shot img { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 6px; background: #05080a; }
+.shot.small { max-width: 760px; }
+.shot figcaption { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.6; }
+.f-body { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 40px; align-items: start; }
+.prose { display: grid; gap: 14px; max-width: 62ch; font-size: 16px; }
+.prose em { font-style: normal; color: var(--amber); }
+.f-side { display: grid; gap: 22px; align-content: start; }
+.flow { list-style: none; margin: 0; padding: 0; counter-reset: s; display: grid; gap: 0; font-family: var(--mono); font-size: 12px; }
+.flow li { counter-increment: s; padding: 6px 0 6px 28px; position: relative; border-left: 1px solid var(--line); margin-left: 8px; }
+.flow li::before { content: counter(s); position: absolute; left: -9px; top: 6px; width: 17px; height: 17px; border-radius: 50%; background: var(--panel); border: 1px solid var(--line); font-size: 10px; text-align: center; line-height: 15px; color: var(--muted); }
+.flow li.hi { color: var(--amber); }
+.flow li.hi::before { border-color: var(--amber); color: var(--amber); }
+.spec { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px 14px; margin: 0; font-size: 13px; }
+.spec dt { font-family: var(--mono); font-size: 11px; color: var(--muted); padding-top: 2px; }
+.spec dd { margin: 0; }
+.pullq { font-family: var(--display); font-size: 19px; line-height: 1.4; border-left: 2px solid var(--amber); padding-left: 16px; }
+.more { font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 8px 0 -8px; }
+@media (max-width: 860px) { .f-body { grid-template-columns: 1fr; gap: 28px; } }
+
 .entries { display: grid; gap: 0; }
 .entry { display: grid; grid-template-columns: 130px minmax(0, 1fr) minmax(0, 260px); gap: 8px 28px; padding: 28px 0; border-top: 1px solid var(--line); }
 .entry:first-child { border-top: 0; padding-top: 4px; }
@@ -151,7 +179,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
   <div class="scene" id="scene">
     <div class="inner">
       <h1 id="name">cyt<span class="dot">.</span></h1>
-      <p class="tag">CS&amp;E student at TU/e. I teach humanoid robots to see, build XR tools for exploring data, and study what people will let an AI say for them.</p>
+      <p class="tag">CS&amp;E student at TU/e. I build XR tools for exploring data, study what people will let an AI say for them, and teach humanoid robots to see.</p>
     </div>
   </div>
   <div class="hud tl"><span class="rec"></span><b>BOOSTER T1</b> · /camera/image_raw<br>frame <span id="frame">000000</span> · 640×480</div>
@@ -166,18 +194,99 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
   <section aria-labelledby="t-about">
     <h2 class="topic" id="t-about"><span class="t">/cyt/about</span><span class="ty">std_msgs/String</span></h2>
     <div class="about">
-      <p class="big">I work where <em>perception</em>, <em>interaction</em> and <em>visualization</em> meet: making a robot’s camera useful on a moving body, making 3D data explorable in VR, and asking where AI delegation should stop.</p>
+      <p class="big">I work where <em>visualization</em>, <em>interaction</em> and <em>perception</em> meet: making 3D scientific data something you can question in VR, asking where AI delegation should stop, and making a robot’s camera useful on a moving body.</p>
       <dl class="facts">
         <dt>BASED</dt><dd>Eindhoven, NL</dd>
         <dt>STUDY</dt><dd>BSc Computer Science &amp; Engineering, TU/e · 2024–2027</dd>
-        <dt>NOW</dt><dd>Tech United humanoid team; research assistant at Northeastern University</dd>
+        <dt>NOW</dt><dd>Research assistant at Northeastern University; Tech United humanoid team</dd>
+        <dt>BEFORE</dt><dd>Visiting research intern, HKUST VisLab</dd>
         <dt>COURSES</dt><dd>Data Structures &amp; Algorithms, Computer Systems, Software Design, Embedded Systems</dd>
       </dl>
     </div>
   </section>
 
   <section aria-labelledby="t-proj">
-    <h2 class="topic" id="t-proj"><span class="t">/cyt/projects</span><span class="ty">5 messages</span></h2>
+    <h2 class="topic" id="t-proj"><span class="t">/cyt/projects</span><span class="ty">5 messages · 2 featured</span></h2>
+
+    <article class="feature" id="slablab">
+      <div class="f-head">
+        <span class="f-no">01</span>
+        <div>
+          <p class="when">2025 – 2026 · Visiting Research Intern · HKUST VisLab</p>
+          <h3>STC SlabLab</h3>
+          <p class="f-sub">Cut a slab out of a space-time cube, then ask it questions.</p>
+        </div>
+      </div>
+
+      <figure class="shot">
+        <img src="img/slablab-matrix.jpg" width="1600" height="916" loading="lazy" alt="STC SlabLab, step 4: a space-time cube of predicted wave height on the left, a grid of time-faceted Matplotlib maps and a panel of statistical evidence on the right.">
+        <figcaption>Step 4 · Review the matrix. Left: the space-time cube with two time cuts. Right: one chart per time range, ranked by the statistics that support them.</figcaption>
+      </figure>
+
+      <div class="f-body">
+        <div class="prose">
+          <p>A space-time cube puts a whole dataset in front of you at once: two axes for space, one for time, colour for the value. That is great for spotting where something happens, and awkward for the next step, when you want to ask a precise numeric question about exactly the part you are looking at.</p>
+          <p>SlabLab closes that gap. In a desktop or VR workspace built on VolumeSTCube, you choose a time range, a depth band and a variable, and the app turns that selection, the <em>slab</em>, into a validated data package. A local S4D analysis service checks it, MatPlotAgent turns it into Matplotlib charts, and the charts and findings come back into the same 3D scene, next to the data they describe.</p>
+          <p>It works on two kinds of data through one loader: <span class="mono">XY + time</span> fields, where the third axis is time, and full <span class="mono">XYZ + time</span> volumes such as Hong Kong coastal chlorophyll, nitrate and salinity, 30 time steps of about 400 × 441 × 92 voxels each. The loader tells them apart from the files themselves.</p>
+          <p>I was the only developer, so the work covers the whole stack: the Unity/C# workspace, the typed C#, JSON and FastAPI interfaces between the 3D view and the Python services, and the parts that make a research prototype usable by someone else: input validation, session history, clear loading errors, a one-command release check and a packaged macOS review build.</p>
+        </div>
+        <aside class="f-side">
+          <ol class="flow" aria-label="Workflow">
+            <li>Open dataset</li>
+            <li>Configure field</li>
+            <li class="hi">Define slab</li>
+            <li>Review matrix</li>
+            <li>Analyze</li>
+            <li>Review findings</li>
+          </ol>
+          <dl class="spec">
+            <dt>stack</dt><dd>Unity 2022.3 · C# · Python · FastAPI · Meta Quest / OpenXR</dd>
+            <dt>memory</dt><dd>only the current volume and one prefetched neighbour stay loaded</dd>
+            <dt>timeline</dt><dd>scrubbing settles after 0.12 s, playback never blocks the main thread</dd>
+            <dt>charts</dt><dd>generated from validated data contracts, not free-form prompts</dd>
+          </dl>
+        </aside>
+      </div>
+
+      <figure class="shot small">
+        <img src="img/slablab-slab.jpg" width="1600" height="989" loading="lazy" alt="STC SlabLab, step 3: a tri-axis composer with time, depth and variable axes; before, during and after time ranges are set on the time axis.">
+        <figcaption>Step 3 · Define the slab. Time, depth and variable are three axes you compose directly; here the time axis is split into before / during / after.</figcaption>
+      </figure>
+
+      <div class="links">
+        <a href="https://github.com/cyt2023/STC-SlabLab-XR-4">Source on GitHub ↗</a>
+        <a href="https://github.com/cyt2023/STC-SlabLab-XR-4/releases/tag/v0.1.0-review-20260918">macOS review build ↗</a>
+        <a href="https://vis.cse.ust.hk/">HKUST VisLab ↗</a>
+      </div>
+    </article>
+
+    <article class="feature" id="proxy">
+      <div class="f-head">
+        <span class="f-no">02</span>
+        <div>
+          <p class="when">Jul 2026 – now · Undergraduate Research Assistant · Northeastern University <span class="live">live</span></p>
+          <h3>Would you let your proxy say that?</h3>
+          <p class="f-sub">Where people draw the line on AI that speaks for them in meetings.</p>
+        </div>
+      </div>
+      <div class="f-body">
+        <div class="prose">
+          <p>AI proxies are agents that join a meeting for you, follow the discussion and speak in your name. They are moving from demos into real collaboration tools. The open question is no longer whether they can talk. It is what people are comfortable letting them say.</p>
+          <p>Our study treats that as a boundary with a shape. Not everything said in a meeting carries the same weight: giving a status update is a different act from agreeing to a deadline or pushing back on a colleague, and the same sentence can feel harmless in a routine check-in and risky in a meeting that matters. We look at how the <em>type of communicative act</em> and the <em>meeting context</em> each move people’s willingness to hand their participation to a proxy.</p>
+          <p>The aim is design guidance grounded in evidence. Instead of a single on/off switch for “let the AI attend”, proxies could know which kinds of contributions their user is happy to delegate, in which settings, and when to hand the floor back.</p>
+        </div>
+        <aside class="f-side">
+          <p class="pullq">“Would You Let Your Proxy Say That? Act Type, Context, and the Boundary of AI Delegation in Team Meetings”</p>
+          <dl class="spec">
+            <dt>venue</dt><dd>submitted to CHI 2027</dd>
+            <dt>role</dt><dd>co-author, undergraduate research assistant</dd>
+            <dt>field</dt><dd>human–AI interaction, CSCW</dd>
+          </dl>
+        </aside>
+      </div>
+    </article>
+
+    <h3 class="more">Also</h3>
     <div class="entries">
 
       <article class="entry">
@@ -200,31 +309,6 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
         </div>
       </article>
 
-      <article class="entry">
-        <div class="when">Jul 2026 – now<br><span class="live">live</span></div>
-        <div class="what">
-          <h3>Would you let your proxy say that?</h3>
-          <p class="role">Undergraduate Research Assistant · Northeastern University</p>
-          <ul>
-            <li>How the type of communicative act and the meeting context change people’s willingness to let an AI proxy take part in team meetings for them.</li>
-          </ul>
-        </div>
-        <div class="side"><span class="chip">co-author · <b>CHI 2027</b> submission</span></div>
-      </article>
-
-      <article class="entry">
-        <div class="when">2025 – 2026</div>
-        <div class="what">
-          <h3>STC SlabLab XR</h3>
-          <p class="role">Visiting Research Intern · HKUST VisLab</p>
-          <ul>
-            <li>Sole developer of a desktop/VR prototype for exploring spatiotemporal data, in Unity/C# and Python, integrating VolumeSTCube and MatPlotAgent.</li>
-            <li>Typed APIs linking 3D visualization, S4D analysis services and LLM-assisted Matplotlib generation, plus data loading, session history, input validation and release checks.</li>
-          </ul>
-          <div class="links"><a href="https://github.com/cyt2023/STC-SlabLab-XR">GitHub ↗</a><a href="https://vis.cse.ust.hk/">HKUST VisLab ↗</a></div>
-        </div>
-        <div class="side"><span class="chip">sole developer · <b>Unity / C# / Python</b></span></div>
-      </article>
 
       <article class="entry">
         <div class="when">Jul – Aug 2025</div>
