@@ -117,7 +117,7 @@ section { display: grid; gap: 28px; }
 .org-name em { font-style: normal; color: var(--amber); }
 .org-meta { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: .03em; }
 a.org:hover { background: #ffbf4d1f; color: var(--fg); }
-.what .org { margin: 22px 0 6px; }
+.what .org { margin: 22px 0 4px; }
 a.org:hover .org-meta { color: var(--fg); }
 .inst { font-weight: 500; color: var(--fg); text-decoration: none; border-bottom: 1.5px solid var(--amber); }
 a.inst:hover { color: var(--amber); }
@@ -358,8 +358,8 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       <article class="entry">
         <div class="when">2024 – now<br><span class="live">live</span></div>
         <div class="what">
-          <h3>Humanoid robot perception</h3>
           <a class="org" href="https://techunited.nl/" data-label="team 0.99"><span class="org-name">Tech <em>United</em></span><span class="org-meta">RoboCup Humanoid · TU/e, Eindhoven · 51.45° N, 5.49° E</span></a>
+          <h3>Humanoid robot perception</h3>
           <ul>
             <li>Built and deployed a ROS 2 object-detection visualization pipeline on the Booster T1: camera frames → model inference → annotated ROS topics → Foxglove. Passes all 11 detector tests.</li>
             <li>Next, 2026–27: optical-flow camera-motion estimation and image stabilization, so teammate/opponent classification holds up while the robot walks and turns its head. The toggle at the top of this page is a toy version.</li>
