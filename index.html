@@ -107,6 +107,19 @@ section { display: grid; gap: 28px; }
 .more { font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 8px 0 -8px; }
 @media (max-width: 860px) { .f-body { grid-template-columns: 1fr; gap: 28px; } }
 
+/* institution tag, drawn like a detection box */
+.org { position: relative; display: inline-grid; gap: 2px; justify-self: start; margin: 18px 0 4px; padding: 10px 16px 9px;
+  text-decoration: none; color: var(--fg); border: 1.5px solid var(--amber); background: #ffbf4d0f; }
+.org::before { content: attr(data-label); position: absolute; left: -1.5px; top: -19px; height: 18px; padding: 0 7px;
+  font-family: var(--mono); font-size: 10px; line-height: 18px; letter-spacing: .04em; background: var(--amber); color: var(--bg); }
+.org::after { content: ""; position: absolute; right: -5px; bottom: -5px; width: 12px; height: 12px; border-right: 3px solid var(--amber); border-bottom: 3px solid var(--amber); }
+.org-name { font-family: var(--display); font-weight: 800; font-size: clamp(22px, 3.2vw, 30px); line-height: 1.1; letter-spacing: .01em; }
+.org-name em { font-style: normal; color: var(--amber); }
+.org-meta { font-family: var(--mono); font-size: 10.5px; color: var(--muted); letter-spacing: .03em; }
+a.org:hover { background: #ffbf4d1f; color: var(--fg); }
+a.org:hover .org-meta { color: var(--fg); }
+.inst { font-weight: 500; color: var(--fg); border-bottom: 1.5px solid var(--amber); }
+
 /* per-project interactive visuals */
 .viz { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: grid; min-width: 0; }
 .viz canvas { display: block; width: 100%; }
@@ -230,8 +243,8 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       <dl class="facts">
         <dt>BASED</dt><dd>Eindhoven, NL</dd>
         <dt>STUDY</dt><dd>BSc Computer Science &amp; Engineering, TU/e · 2024–2027</dd>
-        <dt>NOW</dt><dd>Research assistant at Northeastern University; Tech United humanoid team</dd>
-        <dt>BEFORE</dt><dd>Visiting research intern, HKUST VisLab</dd>
+        <dt>NOW</dt><dd>Research assistant at <span class="inst">Northeastern University</span>; Tech United humanoid team</dd>
+        <dt>BEFORE</dt><dd>Visiting research intern, <span class="inst">HKUST VisLab</span></dd>
         <dt>COURSES</dt><dd>Data Structures &amp; Algorithms, Computer Systems, Software Design, Embedded Systems</dd>
       </dl>
     </div>
@@ -244,7 +257,8 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       <div class="f-head">
         <span class="f-no">01</span>
         <div>
-          <p class="when">2025 – 2026 · Visiting Research Intern · HKUST VisLab</p>
+          <a class="org" href="https://vis.cse.ust.hk/" data-label="lab 0.99"><span class="org-name">HKUST <em>VisLab</em></span><span class="org-meta">Hong Kong University of Science and Technology · 22.34° N, 114.26° E</span></a>
+          <p class="when">2025 – 2026 · Visiting Research Intern</p>
           <h3>STC SlabLab</h3>
           <p class="f-sub">Cut a slab out of a space-time cube, then ask it questions.</p>
         </div>
@@ -306,7 +320,8 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       <div class="f-head">
         <span class="f-no">02</span>
         <div>
-          <p class="when">Jul 2026 – now · Undergraduate Research Assistant · Northeastern University <span class="live">live</span></p>
+          <a class="org" href="https://www.northeastern.edu/" data-label="university 0.99"><span class="org-name">Northeastern <em>University</em></span><span class="org-meta">Boston, MA · 42.34° N, 71.09° W</span></a>
+          <p class="when">Jul 2026 – now · Undergraduate Research Assistant <span class="live">live</span></p>
           <h3>Would you let your proxy say that?</h3>
           <p class="f-sub">Where people draw the line on AI that speaks for them in meetings.</p>
         </div>
