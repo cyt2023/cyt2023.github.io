@@ -699,6 +699,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
   const K = { amber: C("--amber"), cyan: C("--cyan"), coral: C("--coral"), fg: C("--fg"), muted: C("--muted"), line: C("--line"), bg: C("--bg"), panel: C("--panel") };
   const MONO = "11px " + C("--mono");
   const dpr = Math.min(devicePixelRatio || 1, 2);
+  document.querySelectorAll(".viz canvas").forEach(cv => { cv.dataset.h = cv.getAttribute("height"); cv.style.height = cv.dataset.h + "px"; });
   function fit(cv) {
     if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");
     const w = cv.clientWidth, h = +cv.dataset.h;
@@ -731,7 +732,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       const lo = Math.min(+A.value, +B.value), hi = Math.max(+A.value, +B.value);
       c.clearRect(0, 0, W, H);
       const narrow = W < 560, cubeW = narrow ? W : W * 0.58;
-      const cw = Math.min(cubeW / (2 * N) * 0.86, 15), ch = cw * 0.5;
+      const cw = Math.min(cubeW / (2 * N) * 0.86, H * 0.42 / N), ch = cw * 0.5;
       const dz = Math.max(3, (H - 44 - 2 * N * ch) / T);
       const ox = cubeW / 2, oy = 22 + T * dz;
       const P = (i, j, t) => [ox + (i - j) * cw, oy + (i + j) * ch - t * dz];
@@ -821,16 +822,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       c.clearRect(0, 0, W, H);
       const xs = stages.map((_, i) => 40 + (W - 80) * i / (stages.length - 1)), y = H / 2;
       c.strokeStyle = K.line; c.lineWidth = 2; c.beginPath(); c.moveTo(xs[0], y); c.lineTo(xs[3], y); c.stroke();
-      stages.forEach((s, i) => {
-        const w = i === 1 ? 92 : 78;
-        c.fillStyle = K.bg; c.strokeStyle = i === 1 ? K.amber : K.line; c.lineWidth = 1.5;
-        c.beginPath(); c.roundRect(xs[i] - w / 2, y - 20, w, 40, 6); c.fill(); c.stroke();
-        c.fillStyle = K.fg; c.font = MONO; c.textAlign = "center";
-        c.fillText(i === 1 ? (lat < 10 ? "TensorRT" : "ONNX CUDA") : s, xs[i], y + 4);
-        c.fillStyle = K.muted; c.fillText(i === 1 ? "inference" : ["Booster T1", "", "ROS 2 topic", "viewer"][i], xs[i], y + 36);
-      });
-      c.textAlign = "left";
-      // frames: travel time scales with latency (slowed ~250×)
+      // frames: travel time scales with latency (slowed ~250×); drawn under the stage boxes
       spawn -= dt; if (spawn <= 0) { pk.push({ x: 0 }); spawn = 0.45; }
       const v = 1 / (lat * 0.25);
       pk.forEach(p => p.x += dt * v);
@@ -841,6 +833,15 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
         c.fillRect(px - 6, y - 5, 12, 10);
         if (done) { c.strokeStyle = K.amber; c.lineWidth = 1; c.strokeRect(px - 9, y - 8, 18, 16); }
       });
+      stages.forEach((s, i) => {
+        const w = i === 1 ? 92 : 78;
+        c.fillStyle = K.bg; c.strokeStyle = i === 1 ? K.amber : K.line; c.lineWidth = 1.5;
+        c.beginPath(); c.roundRect(xs[i] - w / 2, y - 20, w, 40, 6); c.fill(); c.stroke();
+        c.fillStyle = K.fg; c.font = MONO; c.textAlign = "center";
+        c.fillText(i === 1 ? (lat < 10 ? "TensorRT" : "ONNX CUDA") : s, xs[i], y + 4);
+        c.fillStyle = K.muted; c.fillText(i === 1 ? "inference" : ["Booster T1", "", "ROS 2 topic", "viewer"][i], xs[i], y + 36);
+      });
+      c.textAlign = "left";
     });
   }
 
