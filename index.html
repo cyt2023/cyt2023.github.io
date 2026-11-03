@@ -88,6 +88,7 @@ section { display: grid; gap: 28px; }
 .feature h3 { font-family: var(--display); font-weight: 800; font-size: clamp(32px, 5vw, 52px); line-height: 1.05; margin: 6px 0 8px; text-wrap: balance; }
 .f-sub { font-family: var(--display); font-weight: 500; font-size: 20px; color: var(--muted); }
 .shot { margin: 0; display: grid; gap: 10px; }
+.shot video { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 6px; background: #05080a; }
 .shot img { width: 100%; height: auto; display: block; border: 1px solid var(--line); border-radius: 6px; background: #05080a; }
 .shot.small { max-width: 760px; }
 .shot figcaption { font-family: var(--mono); font-size: 11px; color: var(--muted); line-height: 1.6; }
@@ -153,6 +154,9 @@ a.inst:hover { color: var(--amber); }
 .dgrid td button[data-s="3"] { background: #3a1a17; color: var(--coral); border-color: #6b2f28; }
 .bubble { margin: 0 14px 14px; padding: 12px 14px; border-radius: 8px 8px 8px 2px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; min-height: 48px; }
 .bubble .who { font-family: var(--mono); font-size: 11px; color: var(--muted); display: block; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.legend i { display: inline-block; width: 9px; height: 9px; margin-right: 5px; vertical-align: -1px; border-radius: 2px; }
 
 .entries { display: grid; gap: 0; }
 .entry { display: grid; grid-template-columns: 130px minmax(0, 1fr) minmax(0, 260px); gap: 8px 28px; padding: 28px 0; border-top: 1px solid var(--line); }
@@ -230,7 +234,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
     </div>
   </div>
   <div class="hud tl"><span class="rec"></span><b>BOOSTER T1</b> · /camera/image_raw<br>frame <span id="frame">000000</span> · 640×480</div>
-  <div class="hud tr">TensorRT <b id="lat">6.32</b> ms<br>ONNX CUDA 13.73 ms</div>
+  <div class="hud tr">D-FINE-S · node <b id="lat">20.90</b> ms<br>camera 30 Hz · 29.95 FPS</div>
   <div class="hud bl">
     <button id="stab" type="button" aria-pressed="false"><span class="sw"></span>STABILIZATION</button>
     <span id="stabNote">robot is walking · press <kbd>S</kbd> to stabilize</span>
@@ -253,7 +257,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
   </section>
 
   <section aria-labelledby="t-proj">
-    <h2 class="topic" id="t-proj"><span class="t">/cyt/projects</span><span class="ty">5 messages · 2 featured</span></h2>
+    <h2 class="topic" id="t-proj"><span class="t">/cyt/projects</span><span class="ty">5 messages · 4 featured</span></h2>
 
     <article class="feature" id="slablab">
       <div class="f-head">
@@ -352,34 +356,95 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
       </div>
     </article>
 
+    <article class="feature" id="humanoid">
+      <div class="f-head">
+        <span class="f-no">03</span>
+        <div>
+          <a class="org" href="https://techunited.nl/" data-label="team 0.99"><span class="org-name">Tech <em>United</em></span><span class="org-meta">RoboCup Humanoid · TU/e, Eindhoven · 51.45° N, 5.49° E</span></a>
+          <p class="when">2024 – now · RoboCup Humanoid team <span class="live">live</span></p>
+          <h3>Humanoid robot perception</h3>
+          <p class="f-sub">Can the robot see more without falling behind its own camera?</p>
+        </div>
+      </div>
+      <div class="f-body">
+        <div class="prose">
+          <p>On the Booster T1, everything the robot knows about the field starts with a camera frame every 33 ms. I built the ROS 2 pipeline that shows what it detects (camera frames → inference → annotated ROS topics → Foxglove, passing all 11 detector tests), and since October I have been running the evaluation that decides which detector the robot should use.</p>
+          <p>The comparison is the team’s own <em>D-FINE-S</em> model against the official Booster model. On the HSLVision test set (911 images, 9,841 labelled boxes) D-FINE-S reaches AP50:95 0.780 against 0.202, but it was trained on HSLVision, so that is no verdict on a new field. On 3,574 frames of our own lab recordings it finds balls, robots and goalposts the official model misses, and also calls real people “opponent”, because it has no person class.</p>
+          <p>Speed is the other half. D-FINE-S is slower on the GPU (7.54 vs 4.76 ms), yet inside the full live ROS node, with undistortion, ground plane, radar and 500-particle localization running on 1280×720 RGB + depth, it finishes a frame in <em>20.90 ms</em> against 23.05 ms, and both keep pace with the 30 Hz camera.</p>
+          <p>Much of the work is making those numbers trustworthy. Occasional ~70 ms spikes turned out to be Python garbage collection in the measurement collector, not the model; with a lighter collector every observed frame was matched (1,678 / 1,678). An earlier reading of a 22 ms CPU bottleneck came from an old evaluation script and was withdrawn. Engines are pinned by checksum, and no unfavourable sample was dropped.</p>
+        </div>
+        <aside class="f-side">
+          <dl class="spec">
+            <dt>robot</dt><dd>Booster T1 · Jetson AGX Orin · TensorRT 10.3</dd>
+            <dt>accuracy</dt><dd>AP50:95 0.780 vs 0.202 on HSLVision test (same source as D-FINE-S training)</dd>
+            <dt>live node</dt><dd>20.90 vs 23.05 ms median · 29.95 FPS for both</dd>
+            <dt>scale</dt><dd>10,788 live frames · 10,722 runs per model on recordings</dd>
+            <dt>first test</dt><dd>old ONNX Runtime model 13.73 ms → TensorRT candidate 6.32 ms (Oct 16)</dd>
+            <dt>next</dt><dd>30-minute stability run, annotated test on an unseen field, then optical-flow stabilization (2026–27)</dd>
+          </dl>
+        </aside>
+      </div>
+      <div class="viz">
+        <div class="viz-bar top"><span><b>One frame, stage by stage</b> · full ROS node on the T1, live camera</span><span class="illus">measured · 2 Nov 2026</span></div>
+        <canvas id="budget" height="190"></canvas>
+        <div class="viz-bar"><span class="legend" id="budgetLegend"></span><span>stage medians of 3 × 60 s runs per model; “other” = conversion, projection, publishing</span></div>
+      </div>
+      <div class="links"><a href="https://techunited.nl/">techunited.nl ↗</a></div>
+    </article>
+
+    <article class="feature" id="quercus">
+      <div class="f-head">
+        <span class="f-no">04</span>
+        <div>
+          <a class="org" href="https://www.tue.nl/" data-label="capstone 0.99"><span class="org-name">TU/e <em>Capstone</em></span><span class="org-meta">2IRR70 Systems Integration · Eindhoven University of Technology</span></a>
+          <p class="when">2026 · owner of the Performance issue</p>
+          <h3>Quercus Airport</h3>
+          <p class="f-sub">When the baggage service says BUSY, may the bag go somewhere else?</p>
+        </div>
+      </div>
+
+      <figure class="shot">
+        <video controls muted playsinline preload="metadata" poster="img/quercus-arrival.jpg" width="1600" height="900">
+          <source src="media/quercus-reselection.mp4" type="video/mp4">
+        </video>
+        <figcaption>Recorded simulator runs, same router, authorized group {3, 4}. Left: service 3 is free, the tub goes 1 → 2 → 3. Right: service 3 refuses, the router picks service 4 and the tub goes 1 → 2 → 5 → 6 → 4. Labels and outlines added to the real footage.</figcaption>
+      </figure>
+
+      <div class="f-body">
+        <div class="prose">
+          <p>Quercus Airport is a baggage system built from conveyor modules that make their own routing decisions. Each module runs the routing application on one core of its microcontroller and the hardware platform on the other; neighbouring modules hand tubs to each other over a peer network, while a Raspberry Pi and a web UI only manage and log. The same application also compiles for a simulator.</p>
+          <p>A busy transit module is easy: take another path. A busy <em>final service</em> is not, because every path still ends at the service that refuses. The original router kept retrying that service until it recovered, while an equivalent service stood idle. The bag was never lost; it just waited.</p>
+          <p>My change lets the destination move, but only inside an explicitly trusted group of services that do the same baggage task. Eligibility comes before route cost: with no group the destination stays, and gates always follow the flight board. The refusal and the new destination travel with the tub through every handover, for 4 extra bytes and a compatible message format. Multi-BUSY tests also exposed a booking-motion bug during rerouting and a sequence-window arithmetic edge case, both fixed.</p>
+          <p>On a synthetic six-module layout with one tub and three paired seeds, the time from injection to the first service entry fell from 52.741 s to 22.790 s. Hardware runs confirmed a transit bypass; completing the new reselection on hardware, sustained load and the combined security check are still open, and the slides say so.</p>
+        </div>
+        <aside class="f-side">
+          <div class="bars" aria-label="Injection to first service entry, mean of three paired seeds">
+            <div class="bar"><div class="lab"><b>baseline</b><span>52.741 s</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
+            <div class="bar win"><div class="lab"><b>authorized</b><span>22.790 s</span></div><div class="track"><div class="fill" style="width:43.2%"></div></div></div>
+            <span class="note">−56.8% · 1 tub · 3 paired seeds</span>
+          </div>
+          <dl class="spec">
+            <dt>tests</dt><dd>57 simulator passes on current code · 6 baseline controls · 41/41 Zephyr · 41/41 host sanitizer</dd>
+            <dt>code</dt><dd>C · Zephyr · monitor, service policy, topology, act, comms</dd>
+            <dt>handover</dt><dd>+4 bytes per announcement, wire format compatible</dd>
+            <dt>open</dt><dd>hardware completion, sustained load, security integration</dd>
+          </dl>
+        </aside>
+      </div>
+
+      <div class="viz">
+        <div class="viz-bar top"><span><b>Replay the three cases</b> · same six modules as the video</span><span class="illus">end times measured · motion between them illustrative</span></div>
+        <canvas id="route" height="260"></canvas>
+        <div class="viz-bar">
+          <span class="seg" role="group" aria-label="Case"><button type="button" id="rNormal" aria-pressed="false">normal</button><button type="button" id="rBefore" aria-pressed="true">BUSY · before</button><button type="button" id="rAfter" aria-pressed="false">BUSY · after</button></span>
+          <span>sim clock <b class="hl" id="rClock">0.0 s</b> · shown at 6× speed</span>
+        </div>
+      </div>
+    </article>
+
     <h3 class="more">Also</h3>
     <div class="entries">
 
-      <article class="entry">
-        <div class="when">2024 – now<br><span class="live">live</span></div>
-        <div class="what">
-          <a class="org" href="https://techunited.nl/" data-label="team 0.99"><span class="org-name">Tech <em>United</em></span><span class="org-meta">RoboCup Humanoid · TU/e, Eindhoven · 51.45° N, 5.49° E</span></a>
-          <h3>Humanoid robot perception</h3>
-          <ul>
-            <li>Built and deployed a ROS 2 object-detection visualization pipeline on the Booster T1: camera frames → model inference → annotated ROS topics → Foxglove. Passes all 11 detector tests.</li>
-            <li>Next, 2026–27: optical-flow camera-motion estimation and image stabilization, so teammate/opponent classification holds up while the robot walks and turns its head. The toggle at the top of this page is a toy version.</li>
-          </ul>
-                  </div>
-        <div class="side">
-          <div class="bars" aria-label="Mean pipeline latency, 50 timed iterations after warm-up">
-            <div class="bar win"><div class="lab"><b>TensorRT</b><span>6.32 ms</span></div><div class="track"><div class="fill" style="width:46.0%"></div></div></div>
-            <div class="bar"><div class="lab"><b>ONNX Runtime CUDA</b><span>13.73 ms</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
-            <span class="note">2.17× faster · preliminary, n=50</span>
-          </div>
-        </div>
-        <div class="viz">
-          <canvas id="pipe" height="150"></canvas>
-          <div class="viz-bar">
-            <span class="seg" role="group" aria-label="Inference engine"><button type="button" id="eTrt" aria-pressed="true">TensorRT</button><button type="button" id="eOnnx" aria-pressed="false">ONNX CUDA</button></span>
-            <span>mean pipeline latency <b class="hl" id="pipeLat">6.32 ms</b> · frames slowed down for viewing</span>
-          </div>
-        </div>
-      </article>
 
 
       <article class="entry">
@@ -405,31 +470,6 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
         </div>
       </article>
 
-      <article class="entry">
-        <div class="when">2026</div>
-        <div class="what">
-          <h3>Quercus Airport</h3>
-          <p class="role">Systems integration capstone · TU/e</p>
-          <ul>
-            <li>Distributed C routing logic kept selecting busy equivalent services. Rerouting and integration fixes cut the documented scenario time by more than half.</li>
-          </ul>
-        </div>
-        <div class="side">
-          <div class="bars" aria-label="Documented scenario completion time">
-            <div class="bar"><div class="lab"><b>before</b><span>52.741 s</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
-            <div class="bar win"><div class="lab"><b>after</b><span>22.790 s</span></div><div class="track"><div class="fill" style="width:43.2%"></div></div></div>
-            <span class="note">−56.8%</span>
-          </div>
-        </div>
-        <div class="viz">
-          <canvas id="route" height="220"></canvas>
-          <div class="viz-bar">
-            <span class="seg" role="group" aria-label="Routing logic"><button type="button" id="rBefore" aria-pressed="true">before fix</button><button type="button" id="rAfter" aria-pressed="false">after fix</button></span>
-            <span>served <b id="rDone">0</b> · longest queue <b class="hl" id="rMax">0</b></span>
-            <span class="illus">toy simulation of the idea</span>
-          </div>
-        </div>
-      </article>
 
     </div>
   </section>
@@ -613,7 +653,7 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
     if (hudT > 0.1) {
       hudT = 0;
       frameEl.textContent = String(frame).padStart(6, "0");
-      latEl.textContent = (6.32 + Math.sin(t * 3.1) * 0.18).toFixed(2);
+      latEl.textContent = (20.90 + Math.sin(t * 3.1) * 0.3).toFixed(2);
     }
     if (fpsAcc > 1) { fpsEl.textContent = Math.round(fpsN / fpsAcc); fpsAcc = 0; fpsN = 0; }
     if (!reduce) requestAnimationFrame(draw);
@@ -826,38 +866,46 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
     });
   }
 
-  /* --- Tech United: detection pipeline --- */
+  /* --- Tech United: per-stage frame budget (measured, 2 Nov 2026) --- */
   {
-    const cv = document.getElementById("pipe"), bT = document.getElementById("eTrt"), bO = document.getElementById("eOnnx");
-    let lat = 6.32, pk = [], spawn = 0;
-    const set = trt => { lat = trt ? 6.32 : 13.73; bT.setAttribute("aria-pressed", trt); bO.setAttribute("aria-pressed", !trt); document.getElementById("pipeLat").textContent = lat.toFixed(2) + " ms"; };
-    bT.addEventListener("click", () => set(true)); bO.addEventListener("click", () => set(false));
-    const stages = ["camera", "inference", "/detections", "Foxglove"];
+    const cv = document.getElementById("budget");
+    const stages = [["pre-process", "#8fb3bd"], ["GPU inference", K.amber], ["post-process", "#d9c79a"], ["undistort", "#c98a7f"],
+      ["ground plane", "#7fb38f"], ["radar", "#b3a0d9"], ["localization", K.cyan], ["other", "#3a4c55"]];
+    const rows = [
+      ["Booster official", [3.20, 4.76, 0.78, 6.32, 2.69, 0.09, 2.40, 2.81], 23.05],
+      ["D-FINE-S (team)", [1.19, 7.54, 0.55, 1.22, 2.63, 0.09, 6.04, 1.64], 20.90]
+    ];
+    document.getElementById("budgetLegend").innerHTML = stages.map(([n, c]) => `<span><i style="background:${c}"></i>${n}</span>`).join("");
+    let ph = 0;
     animate(cv, dt => {
       const [c, W, H] = fit(cv);
       c.clearRect(0, 0, W, H);
-      const xs = stages.map((_, i) => 40 + (W - 80) * i / (stages.length - 1)), y = H / 2;
-      c.strokeStyle = K.line; c.lineWidth = 2; c.beginPath(); c.moveTo(xs[0], y); c.lineTo(xs[3], y); c.stroke();
-      // frames: travel time scales with latency (slowed ~250×); drawn under the stage boxes
-      spawn -= dt; if (spawn <= 0) { pk.push({ x: 0 }); spawn = 0.45; }
-      const v = 1 / (lat * 0.25);
-      pk.forEach(p => p.x += dt * v);
-      pk = pk.filter(p => p.x < 1);
-      pk.forEach(p => {
-        const px = xs[0] + (xs[3] - xs[0]) * p.x, done = px > xs[1];
-        c.fillStyle = done ? K.amber : K.fg;
-        c.fillRect(px - 6, y - 5, 12, 10);
-        if (done) { c.strokeStyle = K.amber; c.lineWidth = 1; c.strokeRect(px - 9, y - 8, 18, 16); }
+      const wide = W >= 560, x0 = wide ? 150 : 14, x1 = W - 18, X = ms => x0 + (x1 - x0) * ms / 36;
+      ph = (ph + dt / 3) % 1; const now = ph * 33.33;
+      c.font = MONO; c.textBaseline = "middle";
+      // axis
+      c.strokeStyle = K.line; c.fillStyle = K.muted; c.lineWidth = 1;
+      [0, 10, 20, 30].forEach(v => { c.beginPath(); c.moveTo(X(v), 26); c.lineTo(X(v), H - 24); c.stroke(); c.fillText(v + " ms", X(v) + 3, H - 12); });
+      rows.forEach(([name, seg, total], r) => {
+        const y = wide ? 52 + r * 58 : 58 + r * 62, h = 22;
+        c.fillStyle = K.fg; c.textAlign = "left";
+        if (wide) c.fillText(name, 14, y + h / 2); else c.fillText(name, x0, y - 10);
+        let acc = 0;
+        seg.forEach((ms, i) => {
+          const xa = X(acc), xb = X(acc + ms), run = now >= acc && now < acc + ms;
+          c.fillStyle = stages[i][1]; c.globalAlpha = run ? 1 : 0.72; c.fillRect(xa, y, Math.max(1, xb - xa - 1), h);
+          if (run) { c.globalAlpha = 1; c.strokeStyle = K.fg; c.lineWidth = 1.5; c.strokeRect(xa, y - 3, xb - xa - 1, h + 6); }
+          acc += ms;
+        });
+        c.globalAlpha = 1;
+        c.fillStyle = K.fg; c.fillText(total.toFixed(2) + " ms", X(total) + 6, y + h / 2);
+        if (now > total) { c.fillStyle = K.muted; c.fillText("waiting for next frame", Math.min(X(total) + 70, X(33.33) - 150), y + h / 2 + 18); }
       });
-      stages.forEach((s, i) => {
-        const w = i === 1 ? 92 : 78;
-        c.fillStyle = K.bg; c.strokeStyle = i === 1 ? K.amber : K.line; c.lineWidth = 1.5;
-        c.beginPath(); c.roundRect(xs[i] - w / 2, y - 20, w, 40, 6); c.fill(); c.stroke();
-        c.fillStyle = K.fg; c.font = MONO; c.textAlign = "center";
-        c.fillText(i === 1 ? (lat < 10 ? "TensorRT" : "ONNX CUDA") : s, xs[i], y + 4);
-        c.fillStyle = K.muted; c.fillText(i === 1 ? "inference" : ["Booster T1", "", "ROS 2 topic", "viewer"][i], xs[i], y + 36);
-      });
-      c.textAlign = "left";
+      // 30 Hz frame budget and playhead
+      c.setLineDash([4, 4]); c.strokeStyle = K.coral; c.beginPath(); c.moveTo(X(33.33), 18); c.lineTo(X(33.33), H - 24); c.stroke(); c.setLineDash([]);
+      c.fillStyle = K.coral; c.textAlign = "right"; c.fillText("next frame · 33.3 ms", X(33.33) - 4, 14);
+      c.strokeStyle = K.fg; c.globalAlpha = 0.5; c.beginPath(); c.moveTo(X(now), 26); c.lineTo(X(now), H - 24); c.stroke(); c.globalAlpha = 1;
+      c.textAlign = "left"; c.textBaseline = "alphabetic";
     });
   }
 
@@ -916,45 +964,73 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
     });
   }
 
-  /* --- TU/e Quercus: routing to equivalent services --- */
+  /* --- TU/e Quercus: replay of the three simulator cases --- */
   {
-    const cv = document.getElementById("route"), bB = document.getElementById("rBefore"), bA = document.getElementById("rAfter");
-    let fixed = false, q, moving, done, maxQ, spawn, work;
-    const reset = () => { q = [0, 0, 0]; moving = []; done = 0; maxQ = 0; spawn = 0; work = [0, 0, 0]; };
-    const set = f => { fixed = f; bB.setAttribute("aria-pressed", !f); bA.setAttribute("aria-pressed", f); reset(); };
-    bB.addEventListener("click", () => set(false)); bA.addEventListener("click", () => set(true)); reset();
+    const cv = document.getElementById("route"), clockEl = document.getElementById("rClock");
+    const btn = { normal: document.getElementById("rNormal"), before: document.getElementById("rBefore"), after: document.getElementById("rAfter") };
+    // module grid positions as in the recorded six-module layout
+    const pos = { 1: [0, 1], 2: [1, 1], 5: [2, 1], 6: [3, 1], 3: [1, 2], 4: [3, 0] };
+    // keyframes [module, sim seconds]; final times: normal seed-1 run, BUSY cases mean of 3 paired seeds
+    const cases = {
+      normal: { keys: [[1, 0], [2, 4.8], [3, 9.6]], busy: false, end: "delivered at service 3" },
+      before: { keys: [[1, 0], [2, 4.8], [2, 50.9], [3, 52.741]], busy: true, end: "service 3 recovered · delivered at 3" },
+      after:  { keys: [[1, 0], [2, 4.8], [2, 7.2], [5, 12.4], [6, 17.6], [4, 22.79]], busy: true, end: "delivered at service 4" }
+    };
+    let mode = "before", t = 0;
+    Object.entries(btn).forEach(([k, b]) => b.addEventListener("click", () => { mode = k; t = 0; Object.entries(btn).forEach(([k2, b2]) => b2.setAttribute("aria-pressed", k2 === k)); }));
     animate(cv, dt => {
       const [c, W, H] = fit(cv);
       c.clearRect(0, 0, W, H);
-      const src = [50, H / 2], rt = [W * 0.38, H / 2], sv = [0, 1, 2].map(i => [W * 0.72, 40 + (H - 80) * i / 2]);
-      spawn -= dt;
-      if (spawn <= 0) { // dispatch a job
-        spawn = 0.5;
-        const pending = i => q[i] + moving.filter(m => m.to === i).length;
-        const to = fixed ? [0, 1, 2].sort((a, b) => pending(a) - pending(b))[0] : 0; // before: always the first equivalent service
-        moving.push({ to, f: 0 });
+      const cs = cases[mode], last = cs.keys[cs.keys.length - 1][1];
+      t += dt * 6; if (t > last + 9) t = 0;
+      const tc = Math.min(t, last);
+      const cell = Math.min((W - 40) / 4.4, (H - 40) / 3.2), gx = (W - cell * 4) / 2, gy = 20;
+      const C = m => [gx + pos[m][0] * cell + cell / 2, gy + pos[m][1] * cell + cell / 2];
+      // belts between neighbours
+      c.strokeStyle = K.line; c.lineWidth = 6; c.lineCap = "round";
+      [[1, 2], [2, 5], [5, 6], [2, 3], [6, 4]].forEach(([a, b]) => { c.beginPath(); c.moveTo(...C(a)); c.lineTo(...C(b)); c.stroke(); });
+      c.lineCap = "butt";
+      // route trail for the current case
+      c.strokeStyle = K.amber; c.globalAlpha = 0.35; c.lineWidth = 3; c.beginPath();
+      cs.keys.forEach(([m], i) => { const p = C(m); i ? c.lineTo(...p) : c.moveTo(...p); }); c.stroke(); c.globalAlpha = 1;
+      // modules
+      const busy3 = cs.busy && !(mode === "before" && tc >= 50.9);
+      c.font = MONO; c.textBaseline = "middle";
+      for (const m in pos) {
+        const [x, y] = C(+m), s = cell * 0.62;
+        const service = m === "3" || m === "4";
+        let stroke = K.line;
+        if (m === "3" && busy3) stroke = K.coral;
+        else if (service) stroke = K.cyan;
+        c.fillStyle = K.bg; c.strokeStyle = stroke; c.lineWidth = service ? 2 : 1;
+        c.fillRect(x - s / 2, y - s / 2, s, s); c.strokeRect(x - s / 2, y - s / 2, s, s);
+        c.fillStyle = K.fg; c.textAlign = "left"; c.fillText(m, x - s / 2 + 6, y - s / 2 + 10);
+        if (service) {
+          c.textAlign = "center"; c.fillStyle = stroke === K.coral ? K.coral : K.cyan;
+          c.fillText(m === "3" && busy3 ? "service 3 · BUSY" : "service " + m, x, m === "4" ? y - s / 2 - 10 : y + s / 2 + 12);
+        }
       }
-      moving.forEach(m => m.f += dt * 1.6);
-      moving = moving.filter(m => { if (m.f >= 1) { q[m.to]++; return false; } return true; });
-      for (let i = 0; i < 3; i++) if (q[i] > 0) { work[i] += dt; if (work[i] >= 1.2) { work[i] = 0; q[i]--; done++; } }
-      maxQ = Math.max(maxQ, ...q);
-      // links
-      c.strokeStyle = K.line; c.lineWidth = 1.5;
-      c.beginPath(); c.moveTo(...src); c.lineTo(...rt); c.stroke();
-      sv.forEach(p => { c.beginPath(); c.moveTo(...rt); c.lineTo(p[0] - 30, p[1]); c.stroke(); });
-      // nodes
-      c.font = MONO; c.textAlign = "center";
-      const node = ([x, y], t, col) => { c.fillStyle = K.bg; c.strokeStyle = col; c.beginPath(); c.roundRect(x - 34, y - 14, 68, 28, 5); c.fill(); c.stroke(); c.fillStyle = K.fg; c.fillText(t, x, y + 4); };
-      node(src, "in", K.line); node(rt, "router", K.amber);
-      sv.forEach((p, i) => {
-        node([p[0], p[1]], "service " + "ABC"[i], q[i] > 3 ? K.coral : K.line);
-        for (let k = 0; k < Math.min(q[i], 14); k++) { c.fillStyle = q[i] > 3 ? K.coral : K.cyan; c.fillRect(p[0] + 42 + k * 9, p[1] - 4, 6, 8); }
-        if (q[i] > 14) { c.fillStyle = K.coral; c.textAlign = "left"; c.fillText("+" + (q[i] - 14), p[0] + 42 + 14 * 9, p[1] + 4); c.textAlign = "center"; }
-      });
-      c.textAlign = "left";
-      moving.forEach(m => { const t = sv[m.to]; c.fillStyle = K.amber; c.fillRect(rt[0] + (t[0] - 30 - rt[0]) * m.f - 3, rt[1] + (t[1] - rt[1]) * m.f - 3, 6, 6); });
-      document.getElementById("rDone").textContent = done;
-      document.getElementById("rMax").textContent = maxQ;
+      // tub position from keyframes
+      let p = C(cs.keys[0][0]);
+      for (let i = 1; i < cs.keys.length; i++) {
+        const [m0, t0] = cs.keys[i - 1], [m1, t1] = cs.keys[i];
+        if (tc <= t1) { const f = t1 > t0 ? (tc - t0) / (t1 - t0) : 1, a = C(m0), b = C(m1); p = [a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]; break; }
+        p = C(m1);
+      }
+      c.fillStyle = "#f4b6c2"; c.beginPath(); c.arc(p[0], p[1], cell * 0.1, 0, Math.PI * 2); c.fill();
+      // refusal flashes while the tub waits at module 2
+      const atTwo = Math.hypot(p[0] - C(2)[0], p[1] - C(2)[1]) < 2;
+      if (cs.busy && atTwo && tc > 4.8 && busy3) {
+        const [x2, y2] = C(2), [x3, y3] = C(3);
+        c.globalAlpha = 0.5 + 0.5 * Math.sin(t * 2.5);
+        c.strokeStyle = K.coral; c.setLineDash([4, 4]); c.beginPath(); c.moveTo(x2, y2 + 8); c.lineTo(x3, y3 - cell * 0.31); c.stroke(); c.setLineDash([]);
+        c.fillStyle = K.coral; c.textAlign = "left";
+        c.fillText(mode === "before" ? "BUSY · retry" : "BUSY · choose 4", x2 + 10, (y2 + y3) / 2);
+        c.globalAlpha = 1;
+      }
+      if (t >= last) { c.fillStyle = K.amber; c.textAlign = "left"; c.fillText("✓ " + cs.end + " · " + last.toFixed(mode === "normal" ? 1 : 3) + " s", 16, H - 14); }
+      c.textAlign = "left"; c.textBaseline = "alphabetic";
+      clockEl.textContent = tc.toFixed(1) + " s";
     });
   }
 })();
