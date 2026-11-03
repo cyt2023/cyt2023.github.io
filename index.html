@@ -107,6 +107,38 @@ section { display: grid; gap: 28px; }
 .more { font-family: var(--mono); font-weight: 400; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 8px 0 -8px; }
 @media (max-width: 860px) { .f-body { grid-template-columns: 1fr; gap: 28px; } }
 
+/* per-project interactive visuals */
+.viz { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: grid; min-width: 0; }
+.viz canvas { display: block; width: 100%; }
+.viz-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; padding: 10px 14px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.viz-bar.top { border-top: 0; border-bottom: 1px solid var(--line); }
+.viz-bar b { color: var(--fg); font-weight: 500; }
+.viz-bar .hl { color: var(--amber); }
+.illus { font-family: var(--mono); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); border: 1px dashed var(--line); border-radius: 3px; padding: 1px 6px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg button { font: inherit; font-size: 11px; color: var(--muted); background: transparent; border: 0; padding: 4px 10px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--amber); color: var(--bg); }
+.rng { display: inline-flex; align-items: center; gap: 8px; }
+.rng input { accent-color: var(--amber); width: 120px; }
+.entry .viz { grid-column: 2 / -1; }
+@media (max-width: 860px) { .entry .viz { grid-column: 1; } }
+
+/* delegation grid */
+.dgrid { overflow-x: auto; padding: 14px; }
+.dgrid table { border-collapse: separate; border-spacing: 4px; width: 100%; min-width: 520px; font-size: 13px; }
+.dgrid th { font-family: var(--mono); font-weight: 400; font-size: 11px; color: var(--muted); text-align: left; padding: 2px 6px; }
+.dgrid thead th { text-align: center; }
+.dgrid td button {
+  width: 100%; font: inherit; font-family: var(--mono); font-size: 11px; padding: 8px 6px; border-radius: 4px; cursor: pointer;
+  background: var(--bg); color: var(--muted); border: 1px solid var(--line);
+}
+.dgrid td button[data-s="1"] { background: #3d3216; color: var(--amber); border-color: #6b5320; }
+.dgrid td button[data-s="2"] { background: #13303a; color: var(--cyan); border-color: #24566a; }
+.dgrid td button[data-s="3"] { background: #3a1a17; color: var(--coral); border-color: #6b2f28; }
+.bubble { margin: 0 14px 14px; padding: 12px 14px; border-radius: 8px 8px 8px 2px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; min-height: 48px; }
+.bubble .who { font-family: var(--mono); font-size: 11px; color: var(--muted); display: block; }
+
 .entries { display: grid; gap: 0; }
 .entry { display: grid; grid-template-columns: 130px minmax(0, 1fr) minmax(0, 260px); gap: 8px 28px; padding: 28px 0; border-top: 1px solid var(--line); }
 .entry:first-child { border-top: 0; padding-top: 4px; }
@@ -248,6 +280,16 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
         </aside>
       </div>
 
+      <div class="viz" aria-label="Interactive space-time cube: choose a time range to cut a slab">
+        <div class="viz-bar top"><span><b>Try the slab</b> · drag the two cuts through time</span><span class="illus">synthetic field · illustration</span></div>
+        <canvas id="cube" height="340"></canvas>
+        <div class="viz-bar">
+          <span class="rng"><label for="cutA">cut A</label><input id="cutA" type="range" min="0" max="23" value="7"></span>
+          <span class="rng"><label for="cutB">cut B</label><input id="cutB" type="range" min="0" max="23" value="15"></span>
+          <span>slab <b id="slabRange">t7–t15</b> · mean <b class="hl" id="slabMean">0.00</b></span>
+        </div>
+      </div>
+
       <figure class="shot small">
         <img src="img/slablab-slab.jpg" width="1600" height="989" loading="lazy" alt="STC SlabLab, step 3: a tri-axis composer with time, depth and variable axes; before, during and after time ranges are set on the time axis.">
         <figcaption>Step 3 · Define the slab. Time, depth and variable are three axes you compose directly; here the time axis is split into before / during / after.</figcaption>
@@ -284,6 +326,13 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
           </dl>
         </aside>
       </div>
+
+      <div class="viz">
+        <div class="viz-bar top"><span><b>Where is your boundary?</b> · click a cell to decide what your proxy may say</span><span class="illus">your answers · not study data</span></div>
+        <div class="dgrid"><table id="dgrid"></table></div>
+        <p class="bubble" id="bubble" aria-live="polite"><span class="who">proxy</span>Pick a cell to hear what your proxy would say.</p>
+        <div class="viz-bar"><span>delegated <b class="hl" id="dCount">0</b> / 15 · ask first <b id="dAsk">0</b> · never <b id="dNo">0</b></span><button class="seg" id="dReset" type="button" style="padding:4px 10px;color:var(--muted);background:transparent;cursor:pointer;font:inherit;font-size:11px">reset</button></div>
+      </div>
     </article>
 
     <h3 class="more">Also</h3>
@@ -307,6 +356,13 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
             <span class="note">2.17× faster · preliminary, n=50</span>
           </div>
         </div>
+        <div class="viz">
+          <canvas id="pipe" height="150"></canvas>
+          <div class="viz-bar">
+            <span class="seg" role="group" aria-label="Inference engine"><button type="button" id="eTrt" aria-pressed="true">TensorRT</button><button type="button" id="eOnnx" aria-pressed="false">ONNX CUDA</button></span>
+            <span>mean pipeline latency <b class="hl" id="pipeLat">6.32 ms</b> · frames slowed down for viewing</span>
+          </div>
+        </div>
       </article>
 
 
@@ -324,6 +380,13 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
           <span class="chip"><b>34</b> participants</span>
           <span class="chip">MUSE Design Awards · <b>Silver</b></span>
         </div>
+        <div class="viz">
+          <canvas id="lace" height="260"></canvas>
+          <div class="viz-bar">
+            <span class="seg" role="group" aria-label="Workflow stage" id="laceStages"></span>
+            <span class="illus">workflow sketch · illustration</span>
+          </div>
+        </div>
       </article>
 
       <article class="entry">
@@ -340,6 +403,14 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
             <div class="bar"><div class="lab"><b>before</b><span>52.741 s</span></div><div class="track"><div class="fill" style="width:100%"></div></div></div>
             <div class="bar win"><div class="lab"><b>after</b><span>22.790 s</span></div><div class="track"><div class="fill" style="width:43.2%"></div></div></div>
             <span class="note">−56.8%</span>
+          </div>
+        </div>
+        <div class="viz">
+          <canvas id="route" height="220"></canvas>
+          <div class="viz-bar">
+            <span class="seg" role="group" aria-label="Routing logic"><button type="button" id="rBefore" aria-pressed="true">before fix</button><button type="button" id="rAfter" aria-pressed="false">after fix</button></span>
+            <span>served <b id="rDone">0</b> · longest queue <b class="hl" id="rMax">0</b></span>
+            <span class="illus">toy simulation of the idea</span>
           </div>
         </div>
       </article>
@@ -617,6 +688,257 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
   });
   skyCv.addEventListener("pointerleave", () => { tip.hidden = true; });
   document.fonts.ready.then(() => sky.size());
+})();
+</script>
+<script>
+/* ===== per-project visuals ===== */
+(() => {
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const css = getComputedStyle(document.documentElement);
+  const C = n => css.getPropertyValue(n).trim();
+  const K = { amber: C("--amber"), cyan: C("--cyan"), coral: C("--coral"), fg: C("--fg"), muted: C("--muted"), line: C("--line"), bg: C("--bg"), panel: C("--panel") };
+  const MONO = "11px " + C("--mono");
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  function fit(cv) {
+    const w = cv.clientWidth, h = +cv.getAttribute("height") || cv.clientHeight;
+    cv.style.height = h + "px";
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    const c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    return [c, w, h];
+  }
+  // run an animation only while its canvas is on screen
+  function animate(cv, frame) {
+    let on = false, last = 0, id = 0;
+    const loop = now => { const dt = Math.min(0.05, (now - (last || now)) / 1000); last = now; frame(dt, now / 1000); if (on && !reduce) id = requestAnimationFrame(loop); };
+    new IntersectionObserver(es => es.forEach(e => { on = e.isIntersecting; if (on) { last = 0; cancelAnimationFrame(id); id = requestAnimationFrame(loop); } })).observe(cv);
+  }
+  const viridis = [[68,1,84],[59,82,139],[33,145,140],[94,201,98],[253,231,37]];
+  const ramp = v => { v = Math.max(0, Math.min(0.999, v)) * 4; const i = Math.floor(v), f = v - i, a = viridis[i], b = viridis[i + 1]; return `rgb(${a.map((x, k) => Math.round(x + (b[k] - x) * f)).join(",")})`; };
+
+  /* --- HKUST: space-time cube with a slab --- */
+  {
+    const cv = document.getElementById("cube"), A = document.getElementById("cutA"), B = document.getElementById("cutB");
+    const T = 24, N = 14;
+    const field = (i, j, t) => {
+      const x = i / N, y = j / N, cx = 0.2 + 0.6 * t / T, cy = 0.5 + 0.25 * Math.sin(t / 3.5);
+      const g = Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / 0.045);
+      return 0.12 + 0.68 * g + 0.12 * (0.5 + 0.5 * Math.sin(i * 0.8 + t * 0.4) * Math.cos(j * 0.6));
+    };
+    const means = Array.from({ length: T }, (_, t) => { let s = 0; for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) s += field(i, j, t); return s / N / N; });
+    function draw() {
+      const [c, W, H] = fit(cv);
+      const lo = Math.min(+A.value, +B.value), hi = Math.max(+A.value, +B.value);
+      c.clearRect(0, 0, W, H);
+      const narrow = W < 560, cubeW = narrow ? W : W * 0.58;
+      const cw = Math.min(cubeW / (2 * N) * 0.86, 15), ch = cw * 0.5;
+      const dz = Math.max(3, (H - 44 - 2 * N * ch) / T);
+      const ox = cubeW / 2, oy = 22 + T * dz;
+      const P = (i, j, t) => [ox + (i - j) * cw, oy + (i + j) * ch - t * dz];
+      for (let t = 0; t < T; t++) {
+        const sel = t >= lo && t <= hi;
+        c.globalAlpha = sel ? 0.9 : 0.07;
+        for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) {
+          const p = [P(i, j, t), P(i + 1, j, t), P(i + 1, j + 1, t), P(i, j + 1, t)];
+          c.fillStyle = ramp(field(i, j, t));
+          c.beginPath(); p.forEach(([x, y], k) => k ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.fill();
+        }
+      }
+      c.globalAlpha = 1;
+      // slab outline
+      const corners = t => [P(0, 0, t), P(N, 0, t), P(N, N, t), P(0, N, t)];
+      c.strokeStyle = K.amber; c.lineWidth = 1.5;
+      [lo, hi].forEach(t => { c.beginPath(); corners(t).forEach(([x, y], k) => k ? c.lineTo(x, y) : c.moveTo(x, y)); c.closePath(); c.stroke(); });
+      corners(lo).forEach(([x, y], k) => { const [x2, y2] = corners(hi)[k]; c.beginPath(); c.moveTo(x, y); c.lineTo(x2, y2); c.stroke(); });
+      // cube frame
+      c.strokeStyle = K.line; c.lineWidth = 1;
+      corners(0).forEach(([x, y], k) => { const [x2, y2] = corners(T - 1)[k]; c.beginPath(); c.moveTo(x, y); c.lineTo(x2, y2); c.stroke(); });
+      c.fillStyle = K.muted; c.font = MONO;
+      const [tx, ty] = P(0, N, T - 1); c.fillText("time ↑", tx - 52, ty);
+      const [ax, ay] = P(N, N, 0); c.fillText("x · y = space", ax - 40, ay + 18);
+      // mean chart
+      if (!narrow) {
+        const x0 = W * 0.64, x1 = W - 20, y0 = 40, y1 = H - 40;
+        const mn = Math.min(...means), mx = Math.max(...means);
+        const X = t => x0 + (x1 - x0) * t / (T - 1), Y = v => y1 - (y1 - y0) * (v - mn) / (mx - mn || 1);
+        c.fillStyle = "#ffbf4d18"; c.fillRect(X(lo), y0, Math.max(2, X(hi) - X(lo)), y1 - y0);
+        c.strokeStyle = K.line; c.beginPath(); c.moveTo(x0, y1); c.lineTo(x1, y1); c.stroke();
+        c.strokeStyle = K.fg; c.lineWidth = 1.5; c.beginPath(); means.forEach((v, t) => t ? c.lineTo(X(t), Y(v)) : c.moveTo(X(t), Y(v))); c.stroke();
+        c.strokeStyle = K.amber; c.lineWidth = 2.5; c.beginPath(); for (let t = lo; t <= hi; t++) t > lo ? c.lineTo(X(t), Y(means[t])) : c.moveTo(X(t), Y(means[t])); c.stroke();
+        c.fillStyle = K.muted; c.fillText("mean value per time step", x0, y0 - 14);
+        c.fillText("t0", x0, y1 + 16); c.fillText("t23", x1 - 22, y1 + 16);
+      }
+      const m = means.slice(lo, hi + 1).reduce((a, b) => a + b, 0) / (hi - lo + 1);
+      document.getElementById("slabMean").textContent = m.toFixed(2);
+      document.getElementById("slabRange").textContent = `t${lo}–t${hi}`;
+    }
+    A.addEventListener("input", draw); B.addEventListener("input", draw);
+    addEventListener("resize", draw); document.fonts.ready.then(draw);
+  }
+
+  /* --- Northeastern: your delegation boundary --- */
+  {
+    const acts = [
+      ["Share a status update", "“The API is done; testing starts tomorrow.”"],
+      ["Answer a factual question", "“The release went out on the 14th.”"],
+      ["Agree to a deadline", "“Yes, we can have it ready by Friday.”"],
+      ["Disagree with a colleague", "“I don’t think that approach will scale.”"],
+      ["Apologize for a mistake", "“Sorry, that one was my fault.”"]
+    ];
+    const ctxs = ["Routine stand-up", "Client meeting", "Performance review"];
+    const label = ["—", "let it say", "ask me first", "never"];
+    const tbl = document.getElementById("dgrid"), bub = document.getElementById("bubble");
+    tbl.innerHTML = `<thead><tr><th></th>${ctxs.map(c => `<th scope="col">${c}</th>`).join("")}</tr></thead><tbody>${acts.map((a, i) => `<tr><th scope="row">${a[0]}</th>${ctxs.map((_, j) => `<td><button type="button" id="d${i}${j}" data-i="${i}" data-j="${j}" data-s="0">—</button></td>`).join("")}</tr>`).join("")}</tbody>`;
+    const tally = () => {
+      const s = [...tbl.querySelectorAll("button")].map(b => +b.dataset.s);
+      document.getElementById("dCount").textContent = s.filter(x => x === 1).length;
+      document.getElementById("dAsk").textContent = s.filter(x => x === 2).length;
+      document.getElementById("dNo").textContent = s.filter(x => x === 3).length;
+    };
+    tbl.addEventListener("click", e => {
+      const b = e.target.closest("button"); if (!b) return;
+      const s = (+b.dataset.s + 1) % 4; b.dataset.s = s; b.textContent = label[s];
+      const [act, line] = acts[b.dataset.i], ctx = ctxs[b.dataset.j].toLowerCase();
+      const msg = s === 1 ? `${line}` : s === 2 ? `“Let me check with them and get back to you.”` : s === 3 ? `(stays silent and flags it for you)` : `Pick a cell to hear what your proxy would say.`;
+      bub.innerHTML = `<span class="who">proxy · ${act.toLowerCase()} · ${ctx}</span>${msg}`;
+      tally();
+    });
+    document.getElementById("dReset").addEventListener("click", () => {
+      tbl.querySelectorAll("button").forEach(b => { b.dataset.s = 0; b.textContent = "—"; });
+      bub.innerHTML = `<span class="who">proxy</span>Pick a cell to hear what your proxy would say.`; tally();
+    });
+  }
+
+  /* --- Tech United: detection pipeline --- */
+  {
+    const cv = document.getElementById("pipe"), bT = document.getElementById("eTrt"), bO = document.getElementById("eOnnx");
+    let lat = 6.32, pk = [], spawn = 0;
+    const set = trt => { lat = trt ? 6.32 : 13.73; bT.setAttribute("aria-pressed", trt); bO.setAttribute("aria-pressed", !trt); document.getElementById("pipeLat").textContent = lat.toFixed(2) + " ms"; };
+    bT.addEventListener("click", () => set(true)); bO.addEventListener("click", () => set(false));
+    const stages = ["camera", "inference", "/detections", "Foxglove"];
+    animate(cv, dt => {
+      const [c, W, H] = fit(cv);
+      c.clearRect(0, 0, W, H);
+      const xs = stages.map((_, i) => 40 + (W - 80) * i / (stages.length - 1)), y = H / 2;
+      c.strokeStyle = K.line; c.lineWidth = 2; c.beginPath(); c.moveTo(xs[0], y); c.lineTo(xs[3], y); c.stroke();
+      stages.forEach((s, i) => {
+        const w = i === 1 ? 92 : 78;
+        c.fillStyle = K.bg; c.strokeStyle = i === 1 ? K.amber : K.line; c.lineWidth = 1.5;
+        c.beginPath(); c.roundRect(xs[i] - w / 2, y - 20, w, 40, 6); c.fill(); c.stroke();
+        c.fillStyle = K.fg; c.font = MONO; c.textAlign = "center";
+        c.fillText(i === 1 ? (lat < 10 ? "TensorRT" : "ONNX CUDA") : s, xs[i], y + 4);
+        c.fillStyle = K.muted; c.fillText(i === 1 ? "inference" : ["Booster T1", "", "ROS 2 topic", "viewer"][i], xs[i], y + 36);
+      });
+      c.textAlign = "left";
+      // frames: travel time scales with latency (slowed ~250×)
+      spawn -= dt; if (spawn <= 0) { pk.push({ x: 0 }); spawn = 0.45; }
+      const v = 1 / (lat * 0.25);
+      pk.forEach(p => p.x += dt * v);
+      pk = pk.filter(p => p.x < 1);
+      pk.forEach(p => {
+        const px = xs[0] + (xs[3] - xs[0]) * p.x, done = px > xs[1];
+        c.fillStyle = done ? K.amber : K.fg;
+        c.fillRect(px - 6, y - 5, 12, 10);
+        if (done) { c.strokeStyle = K.amber; c.lineWidth = 1; c.strokeRect(px - 9, y - 8, 18, 16); }
+      });
+    });
+  }
+
+  /* --- XJTU LacAIDes: contour → morphology → path → DXF --- */
+  {
+    const cv = document.getElementById("lace"), bar = document.getElementById("laceStages");
+    const names = ["image", "contour", "morphology", "path", "DXF"];
+    let stage = 3, prog = 0;
+    names.forEach((n, i) => { const b = document.createElement("button"); b.type = "button"; b.id = "lace-" + n; b.textContent = n; b.setAttribute("aria-pressed", i === stage); b.addEventListener("click", () => { stage = i; prog = 0; bar.querySelectorAll("button").forEach((x, k) => x.setAttribute("aria-pressed", k === i)); }); bar.appendChild(b); });
+    const shape = (cx, cy, R, k) => { const p = new Path2D(), pts = []; for (let a = 0; a <= 120; a++) { const th = a / 120 * Math.PI * 2, r = R * k * (1 + 0.18 * Math.sin(3 * th) + 0.1 * Math.cos(5 * th) + 0.05 * Math.sin(7 * th + 1)); pts.push([cx + r * Math.cos(th), cy + r * Math.sin(th) * 0.8]); } pts.forEach(([x, y], i) => i ? p.lineTo(x, y) : p.moveTo(x, y)); p.closePath(); return [p, pts]; };
+    let cache = null;
+    function geom(c, W, H) {
+      if (cache && cache.W === W) return cache;
+      const cx = Math.min(W * 0.32, 200), cy = H / 2, R = Math.min(H * 0.42, W * 0.2);
+      const [outer] = shape(cx, cy, R, 1), [inner] = shape(cx, cy, R, 0.82), [grow] = shape(cx, cy, R, 1.1);
+      const path = [];
+      for (let y = cy - R, row = 0; y <= cy + R; y += 9, row++) {
+        let xl = null, xr = null;
+        for (let x = cx - R * 1.4; x <= cx + R * 1.4; x += 1) if (c.isPointInPath(inner, x * dpr, y * dpr)) { if (xl === null) xl = x; xr = x; }
+        if (xl !== null) row % 2 ? path.push([xr, y], [xl, y]) : path.push([xl, y], [xr, y]);
+      }
+      let L = 0; for (let i = 1; i < path.length; i++) L += Math.hypot(path[i][0] - path[i - 1][0], path[i][1] - path[i - 1][1]);
+      return cache = { W, cx, cy, R, outer, inner, grow, path, L };
+    }
+    animate(cv, dt => {
+      const [c, W, H] = fit(cv);
+      const g = geom(c, W, H);
+      c.clearRect(0, 0, W, H);
+      prog = Math.min(1, prog + dt / 4); if (prog >= 1 && stage === 3 && !reduce) prog = 0;
+      c.lineWidth = 1.5;
+      if (stage === 0) { // raster
+        for (let x = g.cx - g.R * 1.3; x < g.cx + g.R * 1.3; x += 8) for (let y = g.cy - g.R; y < g.cy + g.R; y += 8) {
+          const inside = c.isPointInPath(g.outer, (x + 4) * dpr, (y + 4) * dpr);
+          c.fillStyle = inside ? "#e6ecee55" : "#e6ecee0d"; c.fillRect(x, y, 7, 7);
+        }
+      }
+      if (stage >= 1) { c.strokeStyle = stage === 1 ? K.amber : K.fg; c.stroke(g.outer); }
+      if (stage === 2) { c.setLineDash([4, 4]); c.strokeStyle = K.cyan; c.stroke(g.inner); c.strokeStyle = K.coral; c.stroke(g.grow); c.setLineDash([]); }
+      if (stage === 3) {
+        c.strokeStyle = K.line; c.stroke(g.inner);
+        let left = g.L * (reduce ? 1 : prog), head = g.path[0];
+        c.strokeStyle = K.amber; c.beginPath(); c.moveTo(...g.path[0]);
+        for (let i = 1; i < g.path.length && left > 0; i++) {
+          const [x0, y0] = g.path[i - 1], [x1, y1] = g.path[i], d = Math.hypot(x1 - x0, y1 - y0), f = Math.min(1, left / d);
+          head = [x0 + (x1 - x0) * f, y0 + (y1 - y0) * f]; c.lineTo(...head); left -= d;
+        }
+        c.stroke(); c.fillStyle = K.amber; c.beginPath(); c.arc(...head, 4, 0, Math.PI * 2); c.fill();
+      }
+      // right panel: stage note / DXF text
+      const tx = Math.min(W * 0.62, g.cx + g.R * 1.6), lines = stage === 4
+        ? ["0", "SECTION", "2", "ENTITIES", "0", "LWPOLYLINE", "8", "CONTOUR", "90", "121", "10", g.cx.toFixed(1), "20", g.cy.toFixed(1), "…", "0", "ENDSEC"]
+        : [["raster input"], ["contour extraction"], ["morphology", "inner / outer offsets"], ["path planning", "boustrophedon fill"]][stage];
+      c.font = MONO; c.fillStyle = K.muted;
+      if (tx < W - 60) lines.forEach((l, i) => { c.fillStyle = stage === 4 ? (i % 2 ? K.fg : K.muted) : (i ? K.muted : K.fg); c.fillText(l, tx, 30 + i * (stage === 4 ? 13 : 18)); });
+      if (stage === 4) { c.strokeStyle = K.amber; c.stroke(g.outer); }
+    });
+  }
+
+  /* --- TU/e Quercus: routing to equivalent services --- */
+  {
+    const cv = document.getElementById("route"), bB = document.getElementById("rBefore"), bA = document.getElementById("rAfter");
+    let fixed = false, q, moving, done, maxQ, spawn, work;
+    const reset = () => { q = [0, 0, 0]; moving = []; done = 0; maxQ = 0; spawn = 0; work = [0, 0, 0]; };
+    const set = f => { fixed = f; bB.setAttribute("aria-pressed", !f); bA.setAttribute("aria-pressed", f); reset(); };
+    bB.addEventListener("click", () => set(false)); bA.addEventListener("click", () => set(true)); reset();
+    animate(cv, dt => {
+      const [c, W, H] = fit(cv);
+      c.clearRect(0, 0, W, H);
+      const src = [50, H / 2], rt = [W * 0.38, H / 2], sv = [0, 1, 2].map(i => [W * 0.72, 40 + (H - 80) * i / 2]);
+      spawn -= dt;
+      if (spawn <= 0) { // dispatch a job
+        spawn = 0.5;
+        const pending = i => q[i] + moving.filter(m => m.to === i).length;
+        const to = fixed ? [0, 1, 2].sort((a, b) => pending(a) - pending(b))[0] : 0; // before: always the first equivalent service
+        moving.push({ to, f: 0 });
+      }
+      moving.forEach(m => m.f += dt * 1.6);
+      moving = moving.filter(m => { if (m.f >= 1) { q[m.to]++; return false; } return true; });
+      for (let i = 0; i < 3; i++) if (q[i] > 0) { work[i] += dt; if (work[i] >= 1.2) { work[i] = 0; q[i]--; done++; } }
+      maxQ = Math.max(maxQ, ...q);
+      // links
+      c.strokeStyle = K.line; c.lineWidth = 1.5;
+      c.beginPath(); c.moveTo(...src); c.lineTo(...rt); c.stroke();
+      sv.forEach(p => { c.beginPath(); c.moveTo(...rt); c.lineTo(p[0] - 30, p[1]); c.stroke(); });
+      // nodes
+      c.font = MONO; c.textAlign = "center";
+      const node = ([x, y], t, col) => { c.fillStyle = K.bg; c.strokeStyle = col; c.beginPath(); c.roundRect(x - 34, y - 14, 68, 28, 5); c.fill(); c.stroke(); c.fillStyle = K.fg; c.fillText(t, x, y + 4); };
+      node(src, "in", K.line); node(rt, "router", K.amber);
+      sv.forEach((p, i) => {
+        node([p[0], p[1]], "service " + "ABC"[i], q[i] > 3 ? K.coral : K.line);
+        for (let k = 0; k < Math.min(q[i], 14); k++) { c.fillStyle = q[i] > 3 ? K.coral : K.cyan; c.fillRect(p[0] + 42 + k * 9, p[1] - 4, 6, 8); }
+        if (q[i] > 14) { c.fillStyle = K.coral; c.textAlign = "left"; c.fillText("+" + (q[i] - 14), p[0] + 42 + 14 * 9, p[1] + 4); c.textAlign = "center"; }
+      });
+      c.textAlign = "left";
+      moving.forEach(m => { const t = sv[m.to]; c.fillStyle = K.amber; c.fillRect(rt[0] + (t[0] - 30 - rt[0]) * m.f - 3, rt[1] + (t[1] - rt[1]) * m.f - 3, 6, 6); });
+      document.getElementById("rDone").textContent = done;
+      document.getElementById("rMax").textContent = maxQ;
+    });
+  }
 })();
 </script>
 </body>
