@@ -700,9 +700,10 @@ footer { font-family: var(--mono); font-size: 11px; color: var(--muted); border-
   const MONO = "11px " + C("--mono");
   const dpr = Math.min(devicePixelRatio || 1, 2);
   function fit(cv) {
-    const w = cv.clientWidth, h = +cv.getAttribute("height") || cv.clientHeight;
+    if (!cv.dataset.h) cv.dataset.h = cv.getAttribute("height");
+    const w = cv.clientWidth, h = +cv.dataset.h;
     cv.style.height = h + "px";
-    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
     const c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0);
     return [c, w, h];
   }
